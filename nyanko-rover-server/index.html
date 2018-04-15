@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="nr_websocket.js"></script>
+    <script src="sendrequests.js"></script>
+    <script src="nr_gamepad.js"></script>
+    <!--<script src="exec_cmd.js"></script>-->
+    <!--<script src="motor_control.js"></script>-->
+    <link rel="stylesheet" href="css/master.css">
+  </head>
+  <body>
+    <h3>Motor Control</h3>
+    <div class="">
+      <!--form method="get" action="forward">
+        <h5>Move Forward</h5>
+        <input type="submit" name="" value="Forward">
+      </form-->
+      <div class="motor_control_button">
+        <button type="button" name="forward_button" onclick="moveForward()">FORWARD</button>
+      </div>
+      <div class="motor_control_button">
+        <button type="button" name="sotp_button" onclick="stop()">STOP</button>
+      </div>
+      <div class="motor_control_button">
+        <button type="button" name="backward_button" onclick="moveBackward()">BACKWARD</button>
+      </div>
+      <!--<button type="button" name="button" onclick="">STOP</button>
+      <button type="button" name="button" onclick="">BACKWARD</button>-->
+    </div>
+    <hr>
+    <div>
+      <form action="">
+        <input type="checkbox">Enable control using a gamepad<br>
+      </form>
+    </div>
+    <div id="gamepad_info">
+      <div>
+          <span>Gamepad: </span><span id="gamepad_id"></span><span id="gamepad_index"></span>
+      </div>
+      <div>
+        <span id="gamepad_button_info"></span>
+      </div>
+      <div id="gamepad_axes">
+      </div>
+    </div>
+  </body>
+</html>

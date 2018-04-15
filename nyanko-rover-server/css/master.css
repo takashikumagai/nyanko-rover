@@ -1,0 +1,38 @@
+.motor_control_button {
+    padding: 6px;
+}
+
+#gamepad_info {
+    padding: 10px;
+}
+
+#gamepad_index {
+    color: lightslategray;
+}
+
+/* >>> https://stackoverflow.com/questions/41429906/how-to-display-data-label-inside-html5-progress-bar-cross-browser-compatible */
+.progress {
+    height: 1.5em;
+    width: 100%;
+    background-color: #c9c9c9;
+    position: relative;
+    padding: 10px;
+}
+
+.progress:before {
+    content: attr(data-label);
+    font-size: 0.8em;
+    position: absolute;
+    text-align: center;
+    top: 5px;
+    left: 0;
+    right: 0;
+}
+
+.progress .value {
+    background-color: #7cc4ff;
+    display: inline-block;
+    height: 100%;
+    /*padding: 5px;*/
+}
+/* <<< https://stackoverflow.com/questions/41429906/how-to-display-data-label-inside-html5-progress-bar-cross-browser-compatible */
