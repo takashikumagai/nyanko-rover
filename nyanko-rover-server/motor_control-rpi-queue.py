@@ -10,12 +10,13 @@ Motor1_Enable = 32
 Motor1_A1 = 36
 Motor1_A2 = 38
 
-fwd_back_motor = None
-
 # For controlling the steering motor (i.e. the motor for turning right or left)
-#Motor2_Enable = 
-#Motor2_A1 = 
-#Motor2_A2 = 
+Motor2_Enable = 22
+Motor2_A1 = 24
+Motor2_A2 = 26
+
+fwd_back_motor = None
+steering_motor = None
 
 myqueue = None
 shutdown_requested = False
@@ -25,55 +26,85 @@ def clamp(my_value, min_value, max_value):
 
 # speed: [-100,100], where -100 is backward at full speed and 100 is forward at full speed
 def do_set_fwd_back_motor_speed(speed):
-    speed = clamp(speed, -100.0, 100.0)
+    global fwd_back_motor
+    speed = clamp(speed, -100, 100)
 
-    if 1.0 < speed:
-        print('pwd f: {}'.format(speed))
+    if 1 < speed:
+        logging.debug('pwd f: {}'.format(speed))
         gpio.output(Motor1_A1,gpio.HIGH)
         gpio.output(Motor1_A2,gpio.LOW)
         fwd_back_motor.ChangeDutyCycle(speed)
-    elif speed < -1.0:
-        print('pwd b: {}'.format(speed))
+    elif speed < -1:
+        logging.debug('pwd b: {}'.format(speed))
         gpio.output(Motor1_A1,gpio.LOW)
         gpio.output(Motor1_A2,gpio.HIGH)
         fwd_back_motor.ChangeDutyCycle(abs(speed))
-    else: # -1.0 <= speed <= 1.0
-        print('pwd f/b stop: {}'.format(speed))
+    else: # -1 <= speed <= 1
+        logging.debug('pwd f/b stop: {}'.format(speed))
         fwd_back_motor.ChangeDutyCycle(0)
 
 def do_set_steering(steer):
+    global steering_motor
     steer = clamp(steer, -100.0, 100.0)
+
+    if 1 < steer:
+        logging.debug('pwd left: {}'.format(steer))
+        gpio.output(Motor2_A1,gpio.HIGH)
+        gpio.output(Motor2_A2,gpio.LOW)
+        steering_motor.ChangeDutyCycle(steer)
+    elif steer < -1:
+        logging.debug('pwd right: {}'.format(steer))
+        gpio.output(Motor2_A1,gpio.LOW)
+        gpio.output(Motor2_A2,gpio.HIGH)
+        steering_motor.ChangeDutyCycle(abs(steer))
+    else: # -1 <= steer <= 1
+        logging.debug('pwd l/r stop: {}'.format(steer))
+        steering_motor.ChangeDutyCycle(0)
 
 def do_rotate_motor_cw():
     gpio.output(Motor1_A1,gpio.HIGH)
     gpio.output(Motor1_A2,gpio.LOW)
-    gpio.output(Motor1_Enable,gpio.HIGH)
+    #gpio.output(Motor1_Enable,gpio.HIGH)
+    fwd_back_motor.ChangeDutyCycle(100)
 
 def do_rotate_motor_ccw():
     gpio.output(Motor1_A1,gpio.LOW)
     gpio.output(Motor1_A2,gpio.HIGH)
-    gpio.output(Motor1_Enable,gpio.HIGH)
+    #gpio.output(Motor1_Enable,gpio.HIGH)
+    fwd_back_motor.ChangeDutyCycle(100)
 
 def do_stop_motor():
-    gpio.output(Motor1_Enable,gpio.LOW)
+    #gpio.output(Motor1_Enable,gpio.LOW)
+    fwd_back_motor.ChangeDutyCycle(0)
 
 def init_gpio():
+    global fwd_back_motor
+    global steering_motor
     logging.info('Initializing GPIO.')
     gpio.cleanup()
     gpio.setmode(gpio.BOARD)
     gpio.setup(Motor1_A1,gpio.OUT)
     gpio.setup(Motor1_A2,gpio.OUT)
     gpio.setup(Motor1_Enable,gpio.OUT)
+    gpio.setup(Motor2_A1,gpio.OUT)
+    gpio.setup(Motor2_A2,gpio.OUT)
+    gpio.setup(Motor2_Enable,gpio.OUT)
 
     # Create a PWM instance and sets the duty cycle to 0 so that the motor will not start rotating yet.
     pwm_frequency = 50
     fwd_back_motor = gpio.PWM(Motor1_Enable,pwm_frequency)
     fwd_back_motor.start(0)
+    steering_motor = gpio.PWM(Motor2_Enable,pwm_frequency)
+    steering_motor.start(0)
 
 def cleanup():
+    logging.info('Cleaning up GPIO pins.')
     gpio.output(Motor1_Enable,gpio.LOW)
     gpio.output(Motor1_A1,gpio.LOW)
     gpio.output(Motor1_A2,gpio.LOW)
+    gpio.output(Motor2_Enable,gpio.LOW)
+    gpio.output(Motor2_A1,gpio.LOW)
+    gpio.output(Motor2_A2,gpio.LOW)
     gpio.cleanup()
 
 def mainloop():
@@ -84,6 +115,8 @@ def mainloop():
         item = myqueue.get(block = True)
         if item is None:
             continue
+
+        #logging.debug('myqueue item: {}'.format(item))
         
         code = item[0:1]
         if len(item) == 1:
@@ -95,6 +128,7 @@ def mainloop():
                 do_stop_motor()
         elif 1 < len(item):
             value = int(item[1:])
+            logging.debug('item value: {}'.format(value))
             if code == 'f':
                 do_set_fwd_back_motor_speed(value)
             elif code == 's':
@@ -133,11 +167,14 @@ def rotate_motor_ccw():
 def stop_motor():
     myqueue.put('h')
 
+# param[in] speed must be an integer in the range [-100,100]
 def set_fwd_back_motor_speed(speed):
+    #logging.debug('f/b speed: {}'.format(speed))
     myqueue.put('f{}'.format(speed))
 
+# param[in] steer must be an integer in the range [-100,100]
 def set_steering(steer):
-    myqueue.put('s{}'.format(speed))
+    myqueue.put('s{}'.format(steer))
 
 def shutdown():
     shutdown_requested = True
@@ -145,11 +182,18 @@ def shutdown():
 # Precondition: init() has been called and all the init calls were successful.
 def run():
 
-    init_gpio()
+    try:
+        init_gpio()
+        
+        mainloop()
 
-    mainloop()
-
-    cleanup()
+        cleanup()
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        logging.error('An exception occurred: {}'.format(str(e)))
+    finally:
+        logging.error('motor_control is closing.')
 
 if __name__ == '__main__':
     init()

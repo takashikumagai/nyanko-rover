@@ -131,6 +131,9 @@ function updateStatus() {
     var steeringAxis = 0;
     var fwdBackAxis = 1;
 
+    var fwdBackAxisPolarity = -1; // 1 or -1
+    var steeringAxisPolarity = -1; // 1 or -1
+
     var newValue = controller.axes[fwdBackAxis];
     if( 0.03 < Math.abs(currentFwdBackAxisValue - newValue)
      || (1.0 - Math.abs(newValue)) < 0.001 && 0.001 < 1.0 - Math.abs(currentFwdBackAxisValue) ) {
@@ -149,7 +152,7 @@ function updateStatus() {
 
       // since speed is [-100,100], rounding up to the first decimal would still give us
       // the resolution of 1000 different output levels and that would be sufficient for our purpose.
-      speed = speed.toFixed(1);
+      speed = speed.toFixed(1) * fwdBackAxisPolarity;
       console.log('setting f/b motor speed to ' + speed);
       setFwdBackMotorSpeed(speed);
       currentFwdBackAxisValue = newValue;
@@ -173,7 +176,7 @@ function updateStatus() {
 
       // since speed is [-100,100], rounding up to the first decimal would still give us
       // the resolution of 1000 different output levels and that would be sufficient for our purpose.
-      steering = steering.toFixed(1);
+      steering = steering.toFixed(1) * steeringAxisPolarity;
       console.log('setting steering motor to ' + steering);
       setSteering(steering);
       currentSteeringAxisValue = newValue;

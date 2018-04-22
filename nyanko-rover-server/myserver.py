@@ -7,9 +7,11 @@ import inspect
 import threading
 import time
 
-import motor_control
-
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
+
+# Proprietary Python modules
+import cmdutil
+import motor_control
 
 httpd = None
 ws_server = None
@@ -20,6 +22,13 @@ def guess_script_file_directory():
   path = os.path.dirname(os.path.abspath(filename))
   logging.info('guess: {}'.format(path))
   return path
+
+def on_photo_saved():
+  logging.info('Photo saved to file.')
+
+def take_photo():
+  logging.info('Taking a photo...')
+  cmdutil.exec_cmd_async(['raspistill', '-o', 'myphoto.jpg'], on_photo_saved)
 
 #Create custom HTTPRequestHandler class
 class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -45,14 +54,27 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       #print('self.path {}, thread {}'.format(self.path, threading.current_thread().ident))
 
       if self.path.startswith('/forward'):
-        print('forward action requested')
-        #motor_control.start_motor_forward(10)
+        logging.debug('driving forward')
+        motor_control.start_motor_forward(10)
       elif self.path.startswith('/stop'):
-        print('stopping the motor')
-        #motor_control.stop_motor()
+        logging.debug('stopping the motor')
+        motor_control.stop_motor()
+        motor_control.set_steering(0)
+      elif self.path.startswith('/backward'):
+        logging.debug('driving backward')
+        motor_control.start_motor_backward(10)
+      elif self.path.startswith('/steer'):
+        logging.debug('steering {}'.format(str(self.path)))
+        if 0 <= self.path.find('dir=left'):
+          motor_control.set_steering(90)
+        elif 0 <= self.path.find('dir=right'):
+          motor_control.set_steering(-90)
       elif self.path.startswith('/reset'):
         print('Resetting')
         #motor_control.stop_motor()
+      elif self.path.startswith('/take_photo'):
+        print('Taking a photo')
+        take_photo()
       elif self.path.startswith('/server_address'):
         print('server_address requested')
         f = open('myaddress.xml', 'rb')
@@ -87,7 +109,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 class NyankoRoverWebSocket(WebSocket):
 
     def handleMessage(self):
-        #print("ws:message received: {}".format(self.data))
+        print("ws:message received: {}".format(self.data))
 
         # Unpack the data
         motor = self.data[0:1] # 'f' fwd/back or 's' for steering
@@ -111,10 +133,10 @@ def start():
   logging.basicConfig(filename='nyankoroverserver.log', level=logging.DEBUG)
 
   # Set up and start the motor controller
-  #logging.info('Setting up the motor controller...')
-  #motor_control.init()
-  #motor_controller_thread = threading.Thread(target = motor_control.run)
-  #motor_controller_thread.start()
+  logging.info('Setting up the motor controller...')
+  motor_control.init()
+  motor_controller_thread = threading.Thread(target = motor_control.run)
+  motor_controller_thread.start()
 
   # Set up and start the web server
   logging.info('Setting up the web server...')
@@ -129,13 +151,13 @@ def start():
   logging.info('Starting the server...')
   web_server_thread.start()
 
-  # # Set up and start the WebSocket server
-  # logging.info('Setting up the WebSocket server...')
-  # ws_port = 9792
-  # ws_server = SimpleWebSocketServer('', ws_port, NyankoRoverWebSocket)
-  # print("Starting a WebSocket server (port: {}).".format(ws_port))
-  # websocket_server_thread = threading.Thread(target = ws_server.serveforever)
-  # websocket_server_thread.start()
+  # Set up and start the WebSocket server
+  logging.info('Setting up the WebSocket server...')
+  ws_port = 9792
+  ws_server = SimpleWebSocketServer('', ws_port, NyankoRoverWebSocket)
+  print("Starting a WebSocket server (port: {}).".format(ws_port))
+  websocket_server_thread = threading.Thread(target = ws_server.serveforever)
+  websocket_server_thread.start()
 
 def run():
 
@@ -148,12 +170,11 @@ def run():
     httpd.shutdown()
 
     # WebSocket shutdown
-    # ws_server.close()
+    ws_server.close()
 
     # Shut down the motor controller and wait for the thread to terminate
-    #motor_control.shutdown()
-    #motor_controller_thread.join()
-    #ws_server.shutdown()
+    motor_control.shutdown()
+    motor_controller_thread.join()
   finally:
     print('in "finally" block')
     logging.info('Cleaning up...')

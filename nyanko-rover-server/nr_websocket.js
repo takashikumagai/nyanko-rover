@@ -1,4 +1,4 @@
-var myWebSocket
+var myWebSocket = null
 
 function parseXml(xmlStr) {
     return new window.DOMParser().parseFromString(xmlStr, "text/xml");
@@ -12,6 +12,7 @@ function initWebSocket(serverAddress) {
     myWebSocket.onopen = function(evt) { onWebSocketOpen(evt); };
     myWebSocket.onmessage = function(evt) { onWebSocketMessage(evt); };
     myWebSocket.onerror = function(evt) { onWebSocketError(evt); };
+    myWebSocket.onclose = function(evt) { onWebSocketClose(evt); };
     //myWebSocket.send("ws-nyanko");
     console.log("initWebSocket() leaving.");
 }
@@ -26,6 +27,10 @@ function onWebSocketMessage(evt) {
 
 function onWebSocketError(evt) {
     console.log("WebSocket error: " + evt.data);
+}
+
+function onWebSocketClose(evt) {
+    console.log("WebSocket close: " + evt.data);
 }
 
 function onServerAddressOrHostnameAcquired(evt) {

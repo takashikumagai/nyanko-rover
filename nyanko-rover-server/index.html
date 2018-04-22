@@ -17,18 +17,23 @@
         <h5>Move Forward</h5>
         <input type="submit" name="" value="Forward">
       </form-->
-      <div class="motor_control_button">
-        <button type="button" name="forward_button" onclick="moveForward()">FORWARD</button>
+      <div class="motor_control">
+        <button class="motor_control_button" type="button" name="forward_button" onclick="moveForward()">FORWARD</button>
       </div>
-      <div class="motor_control_button">
-        <button type="button" name="sotp_button" onclick="stop()">STOP</button>
+      <div class="motor_control">
+        <button class="motor_control_button" type="button" name="steer_left_button" onclick="steerLeft()">LEFT</button>
+        <button class="motor_control_button" type="button" name="sotp_button" onclick="stop()">STOP</button>
+        <button class="motor_control_button" type="button" name="steer_right_button" onclick="steerRight()">RIGHT</button>
       </div>
-      <div class="motor_control_button">
-        <button type="button" name="backward_button" onclick="moveBackward()">BACKWARD</button>
+      <div class="motor_control">
+        <button class="motor_control_button" type="button" name="backward_button" onclick="moveBackward()">BACKWARD</button>
       </div>
       <!--<button type="button" name="button" onclick="">STOP</button>
       <button type="button" name="button" onclick="">BACKWARD</button>-->
     </div>
+    <hr>
+    <div><img src="myphoto.jpg" alt="" width="160"></div>
+    <div><button class="photo_shoot_button" type="button" onclick="takePhoto()">TAKE A PHOTO</button></div>
     <hr>
     <div>
       <form action="">

@@ -1,5 +1,12 @@
-.motor_control_button {
+.motor_control {
+    text-align: center;
     padding: 6px;
+}
+
+.motor_control_button {
+    margin: auto;
+    width: 100px;
+    height: 50px;
 }
 
 #gamepad_info {
