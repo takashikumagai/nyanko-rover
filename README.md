@@ -1,4 +1,10 @@
+# Controlling RC Car via WiFi
 
+## Overview
+
+I've been trying to convert an affordable store-bought RC car into something more versatile and fun.
+So far I installed an SBC (RPi 3) and can now drive the car forward and backward.
+I'll see how this goes.
 
 ## Setup Guide
 
