@@ -6,6 +6,24 @@ I've been trying to convert an affordable store-bought RC car into something mor
 So far I installed an SBC (RPi 3) and can now drive the car forward and backward.
 I'll see how this goes.
 
+## Components
+
+### Hardware
+
+- An RC car
+- RPi 3 Model B
+- A breadboard
+- L293D motor driver
+- jumper wires
+- USB charger
+
+### Software
+
+- RPi 3 Model B
+  - OS: Ubuntu 16.04 LTS Mate
+  - Python version 3.x.x
+
+
 ## Setup Guide
 
 Follow the steps below to set up a few things. These are necessary to upload all the files to the server.
