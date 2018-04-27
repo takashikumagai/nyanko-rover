@@ -1,3 +1,4 @@
 *.pyc
+*.log
 server_ip_address.txt
 
