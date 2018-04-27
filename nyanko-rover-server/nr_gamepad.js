@@ -128,7 +128,7 @@ function updateStatus() {
       //setFwdBackMotorSpeed(val);
     }
 
-    var steeringAxis = 0;
+    var steeringAxis = 2;
     var fwdBackAxis = 1;
 
     var fwdBackAxisPolarity = -1; // 1 or -1
