@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
 import http.server
+import socketserver
 import os
 import logging
 import inspect
 import threading
 import time
+import io
+import picamera
 
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 
@@ -16,6 +19,8 @@ import motor_control
 httpd = None
 ws_server = None
 motor_controller_thread = None
+mycamera = None
+output = None
 
 def guess_script_file_directory():
   filename = inspect.getframeinfo(inspect.currentframe()).filename
@@ -29,6 +34,23 @@ def on_photo_saved():
 def take_photo():
   logging.info('Taking a photo...')
   cmdutil.exec_cmd_async(['raspistill', '-o', 'myphoto.jpg'], on_photo_saved)
+
+class StreamingOutput(object):
+    def __init__(self):
+        self.frame = None
+        self.buffer = io.BytesIO()
+        self.condition = threading.Condition()
+
+    def write(self, buf):
+        if buf.startswith(b'\xff\xd8'):
+            # New frame, copy the existing buffer's content and notify all
+            # clients it's available
+            self.buffer.truncate()
+            with self.condition:
+                self.frame = self.buffer.getvalue()
+                self.condition.notify_all()
+            self.buffer.seek(0)
+        return self.buffer.write(buf)
 
 #Create custom HTTPRequestHandler class
 class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -52,6 +74,10 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     rootdir = guess_script_file_directory()
     try:
       #print('self.path {}, thread {}'.format(self.path, threading.current_thread().ident))
+
+      if 'mjpg' in self.path:
+        print('mjpg in path')
+        logging.debug('mjpg in self.path')
 
       if self.path.startswith('/forward'):
         logging.debug('driving forward')
@@ -97,6 +123,29 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         #self.send_response_and_header('text/html',len(html))
         self.send_response_and_header('text/xml',len(encoded))
         #return xmltext
+      elif self.path == '/stream.mjpg':
+        logging.info('Streaming (mjpg).')
+        print('Streaming video.')
+        self.send_response(200)
+        self.send_header('Age', 0)
+        self.send_header('Cache-Control', 'no-cache, private')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=FRAME')
+        self.end_headers()
+        try:
+          while True:
+            with output.condition:
+              output.condition.wait()
+              frame = output.frame
+            self.wfile.write(b'--FRAME\r\n')
+            self.send_header('Content-Type', 'image/jpeg')
+            self.send_header('Content-Length', len(frame))
+            self.end_headers()
+            self.wfile.write(frame)
+            self.wfile.write(b'\r\n')
+        except Exception as e:
+          logging.warning('Removed streaming client %s: %s', self.client_address, str(e))
+
       else:
         super(NyankoRoverHTTPRequestHandler,self).do_GET()
 
@@ -126,11 +175,37 @@ class NyankoRoverWebSocket(WebSocket):
     def handleClose(self):
         print(self.address, 'ws:closed')
 
+
+class StreamingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    allow_reuse_address = True
+    daemon_threads = True
+
+
 # Starts a web server and a WebSocket server on their own threads.
 # In other words, invocation of this function will create two new threads.
 def start():
 
-  logging.basicConfig(filename='nyankoroverserver.log', level=logging.DEBUG)
+  log_format = '%(asctime)-15s %(thread)d %(message)s'
+  logging.basicConfig(filename='nyankoroverserver.log', level=logging.DEBUG, format=log_format)
+
+  print('Initializing camera')
+  global mycamera
+  #with picamera.PiCamera(resolution='640x480', framerate=24) as mycamera:
+  mycamera = picamera.PiCamera(resolution='640x480', framerate=24)
+    
+  print('Setting up streaming output')
+  global output
+  output = StreamingOutput()
+  #Uncomment the next line to change your Pi's Camera rotation (in degrees)
+  #mycamera.rotation = 90
+  print('starting the recording')
+  mycamera.start_recording(output, format='mjpeg')
+  # try:
+  #   address = ('', 8000)
+  #   server = StreamingServer(address, StreamingHandler)
+  #   server.serve_forever()
+  # finally:
+  #   mycamera.stop_recording()
 
   # Set up and start the motor controller
   logging.info('Setting up the motor controller...')
@@ -144,7 +219,8 @@ def start():
   print('web server port: {}'.format(http_port))
   #server_address = ('127.0.0.1', port)
   server_address = ('', http_port)
-  httpd = http.server.HTTPServer(server_address, NyankoRoverHTTPRequestHandler)
+  #httpd = http.server.HTTPServer(server_address, NyankoRoverHTTPRequestHandler)
+  httpd = StreamingServer(server_address, NyankoRoverHTTPRequestHandler)
   web_server_thread = threading.Thread(target = httpd.serve_forever)
 
 
@@ -161,10 +237,12 @@ def start():
 
 def run():
 
+  global mycamera
+
   try:
     start()
-#    while(True):
-#      time.sleep(1)
+    while(True):
+      time.sleep(1)
   except KeyboardInterrupt:
     print("Keyboard interrupt")
     httpd.shutdown()
@@ -175,6 +253,10 @@ def run():
     # Shut down the motor controller and wait for the thread to terminate
     motor_control.shutdown()
     motor_controller_thread.join()
+
+    logging.info('Stopping the camera recording...')
+    mycamera.stop_recording()
+
   finally:
     print('in "finally" block')
     logging.info('Cleaning up...')
@@ -182,4 +264,3 @@ def run():
 
 if __name__ == '__main__':
   run()
-
