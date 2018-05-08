@@ -15,6 +15,8 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 # Proprietary Python modules
 import cmdutil
 import motor_control
+import NetworkStatusReporter
+
 
 httpd = None
 ws_server = None
@@ -28,7 +30,7 @@ def guess_script_file_directory():
   logging.info('guess: {}'.format(path))
   return path
 
-def on_photo_saved():
+def on_photo_saved(stdout,stderr):
   logging.info('Photo saved to file.')
 
 def take_photo():
@@ -123,6 +125,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         #self.send_response_and_header('text/html',len(html))
         self.send_response_and_header('text/xml',len(encoded))
         #return xmltext
+
       elif self.path == '/stream.mjpg':
         logging.info('Streaming (mjpg).')
         print('Streaming video.')
@@ -157,6 +160,11 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 class NyankoRoverWebSocket(WebSocket):
 
+    #def __init__(self):
+    #    super(NyankoRoverWebSocket,self).__init__()
+    #     WebSocket.__init__(self)
+        #self.network_status_reporter = None
+
     def handleMessage(self):
         print("ws:message received: {}".format(self.data))
 
@@ -172,8 +180,15 @@ class NyankoRoverWebSocket(WebSocket):
     def handleConnected(self):
         print(self.address, 'ws:connected')
 
+        self.network_status_reporter = NetworkStatusReporter.NetworkStatusReporter(self)
+        self.network_status_reporter.start()
+
     def handleClose(self):
         print(self.address, 'ws:closed')
+
+        if self.network_status_reporter != None:
+            self.network_status_reporter.stop()
+        
 
 
 class StreamingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):

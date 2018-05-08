@@ -23,6 +23,14 @@ function onWebSocketOpen(evt) {
 
 function onWebSocketMessage(evt) {
     console.log("Message from WebSocket server: " + evt.data);
+
+    if(1 <= evt.data.length && evt.data[0] == '#') {
+        let info = JSON.parse(evt.data.substring(1));
+        document.getElementById('network_info').innerHTML = ' - ' + info.ssid + ' (signal strength: ' + info.signal_strength + '/100)';
+    }
+    else {
+        document.getElementById('network_info').innerHTML = ' - ???';
+    }
 }
 
 function onWebSocketError(evt) {
