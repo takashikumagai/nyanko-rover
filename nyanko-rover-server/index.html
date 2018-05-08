@@ -11,31 +11,26 @@
     <link rel="stylesheet" href="css/master.css">
   </head>
   <body>
-    <h3>Motor Control</h3>
-    <div class="">
-      <!--form method="get" action="forward">
-        <h5>Move Forward</h5>
-        <input type="submit" name="" value="Forward">
-      </form-->
-      <div class="motor_control">
-        <button class="motor_control_button" type="button" name="forward_button" onclick="moveForward()">FORWARD</button>
+    <div id="top">
+      <span id="pagetitle">Remote Control</span>
+      <span id="network_info"></span>
+    </div>
+    <div>
+      <div id="main_controls">
+        <span id="fwd_and_back">
+        <input id="slider-fwd_and_back" class="slidervertical" type="range" orient="vertical" min="-100" max="100" oninput="setFwdBackMotorSpeed(this.value)" onmouseup="onFwdBackSliderReleased()" ontouchend="onFwdBackSliderReleased()">
+        </span>
+        <img id="stream_mjpg" src="stream.mjpg">
+        <span id="fb_speed_display">STEER→</span>
+        <input id="slider-steering" class="slider" type="range" min="-100" max="100" oninput="setSteering(this.value)" onmouseup="onSteeringSliderReleased()" ontouchend="onSteeringSliderReleased()">
       </div>
-      <div class="motor_control">
-        <button class="motor_control_button" type="button" name="steer_left_button" onclick="steerLeft()">LEFT</button>
-        <button class="motor_control_button" type="button" name="sotp_button" onclick="stop()">STOP</button>
-        <button class="motor_control_button" type="button" name="steer_right_button" onclick="steerRight()">RIGHT</button>
-      </div>
-      <div class="motor_control">
-        <button class="motor_control_button" type="button" name="backward_button" onclick="moveBackward()">BACKWARD</button>
-      </div>
+
       <!--<button type="button" name="button" onclick="">STOP</button>
       <button type="button" name="button" onclick="">BACKWARD</button>-->
     </div>
     <hr>
     <div><img src="myphoto.jpg" alt="" width="160"></div>
     <div><button class="photo_shoot_button" type="button" onclick="takePhoto()">TAKE A PHOTO</button></div>
-    <hr>
-    <center><img src="stream.mjpg" width="640" height="480"></center>
     <hr>
     <div>
       <form action="">
@@ -52,5 +47,18 @@
       <div id="gamepad_axes">
       </div>
     </div>
+    <hr>
+    <div class="motor_control">
+      <button class="motor_control_button" type="button" name="forward_button" onclick="moveForward()">FORWARD</button>
+    </div>
+    <div class="motor_control">
+      <button class="motor_control_button" type="button" name="steer_left_button" onclick="steerLeft()">LEFT</button>
+      <button class="motor_control_button" type="button" name="sotp_button" onclick="stop()">STOP</button>
+      <button class="motor_control_button" type="button" name="steer_right_button" onclick="steerRight()">RIGHT</button>
+    </div>
+    <div class="motor_control">
+      <button class="motor_control_button" type="button" name="backward_button" onclick="moveBackward()">BACKWARD</button>
+    </div>
+
   </body>
 </html>
