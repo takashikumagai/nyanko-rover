@@ -39,6 +39,17 @@ function takePhoto() {
   //myWebSocket.send("sending message via WebSocket");
 }
 
+function onFwdBackSliderReleased() {
+  console.log('resetting f/b slider')
+  document.getElementById('slider-fwd_and_back').value = 0;
+  stop();
+}
+
+function onSteeringSliderReleased() {
+  console.log('resetting steering slider')
+  document.getElementById('slider-steering').value = 0;
+}
+
 // \param[in] speed [-100,100]
 function setFwdBackMotorSpeed(speed) {
 
