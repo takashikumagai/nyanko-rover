@@ -1,3 +1,19 @@
+body {
+    padding: 0px;
+    margin: 0px;
+}
+
+#top {
+    background-color: midnightblue;
+    padding: 6px;
+}
+
+#top span {
+    color: white;
+    margin: 0px;
+    font-family: sans-serif;
+}
+
 .motor_control {
     text-align: center;
     padding: 6px;
@@ -7,6 +23,118 @@
     margin: auto;
     width: 100px;
     height: 50px;
+}
+
+#main_controls {
+
+    padding: 5px;
+    /* This should center the div but somehow didn't. */
+    /* margin: auto; */
+
+    margin-left: 35px;
+
+    /* Make room for the vertical slider */
+    margin-bottom: 50px;
+}
+
+#slider-fwd_and_back {
+    /*-webkit-appearance: slider-vertical;*/ /* WebKit */
+    -webkit-appearance: none;
+    height: 30px;
+    width: 420px;
+}
+
+#fwd_and_back {
+  margin-left: -150px;
+  margin-right: -150px;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  animate: 0.2s;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background: #3071a9;
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+
+input[type=range]::-webkit-slider-thumb/*, .slider::-moz-range-thumb, .slider::-ms-thumb*/ {
+    /*-webkit-appearance: slider-vertical;*/ /* WebKit */
+    -webkit-appearance: none;
+    /* appearance: none; */
+    background-color: #aac;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    transform: translateY(-20px);
+ }
+
+ input[type=range] {
+   width: 100%;
+   height: 100%;
+   -webkit-appearance: none;
+   margin: 0px;
+   padding: 0px;
+   border: 0 none;
+   background: transparent;
+   color: transparent;
+   overflow: visible;
+ }
+
+.slidervertical {
+  margin-right: -50px;
+  margin-left: -50px;
+  margin-top: -50px;
+  transform: translateY(-150px) rotate(90deg);
+  /*ransform-origin:bottom;*/
+
+  -webkit-appearance: none;
+  width: 100%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+}
+
+
+#slider-steering {
+    height: 30px;
+    width: 420px;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb/*, .slider::-moz-range-thumb, .slider::-ms-thumb*/ {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: #666;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+ }
+/*
+#fb_speed_display {
+    height: 300px;
+    vertical-align: middle;
+}*/
+
+#stream_mjpg {
+    width: 500px;
+    height: 375px;
 }
 
 #gamepad_info {
