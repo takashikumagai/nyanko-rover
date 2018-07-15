@@ -2,6 +2,7 @@
 
 import http.server
 import socketserver
+import sys
 import os
 import logging
 import inspect
@@ -26,7 +27,7 @@ video_stream = None
 def guess_script_file_directory():
   filename = inspect.getframeinfo(inspect.currentframe()).filename
   path = os.path.dirname(os.path.abspath(filename))
-  logging.info('guess: {}'.format(path))
+  #logging.info('guess: {}'.format(path))
   return path
 
 def on_photo_saved(stdout,stderr):
@@ -210,14 +211,12 @@ def start():
 
 def run():
 
-  global mycamera
-
   try:
     start()
     while(True):
       time.sleep(1)
   except KeyboardInterrupt:
-    print("Keyboard interrupt")
+    logging.error("Keyboard interrupt exception")
     httpd.shutdown()
 
     # WebSocket shutdown
@@ -229,6 +228,12 @@ def run():
 
     logging.info('Stopping the camera recording...')
     video_stream.stop_recording()
+
+  except:
+    logging.info('Exception on the nyanko-rover-server: ',sys.exc_info())
+
+  else:
+    logging.info('There was no exception.')
 
   finally:
     print('in "finally" block')
