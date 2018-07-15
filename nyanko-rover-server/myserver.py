@@ -16,6 +16,7 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import cmdutil
 import motor_control
 import NetworkStatusReporter
+import networktool
 
 
 httpd = None
@@ -73,6 +74,8 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
   #handle GET command
   def do_GET(self):
 
+    global video_stream
+
     rootdir = guess_script_file_directory()
     try:
       #print('self.path {}, thread {}'.format(self.path, threading.current_thread().ident))
@@ -105,6 +108,9 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         take_photo()
       elif self.path.startswith('/server_address'):
         print('server_address requested')
+        with open('myaddress.xml','w') as xmlfile:
+          xmlfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+          xmlfile.write('<nyanko>' + networktool.get_ip() + '</nyanko>')
         f = open('myaddress.xml', 'rb')
         self.send_response(200)
         self.send_header("Content-type", 'text/xml')
