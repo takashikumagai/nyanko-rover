@@ -7,8 +7,6 @@ import logging
 import inspect
 import threading
 import time
-import io
-import picamera
 
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 
@@ -16,14 +14,14 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import cmdutil
 import motor_control
 import NetworkStatusReporter
+import VideoStream
 import networktool
 
 
 httpd = None
 ws_server = None
 motor_controller_thread = None
-mycamera = None
-output = None
+video_stream = None
 
 def guess_script_file_directory():
   filename = inspect.getframeinfo(inspect.currentframe()).filename
@@ -37,23 +35,6 @@ def on_photo_saved(stdout,stderr):
 def take_photo():
   logging.info('Taking a photo...')
   cmdutil.exec_cmd_async(['raspistill', '-o', 'myphoto.jpg'], on_photo_saved)
-
-class StreamingOutput(object):
-    def __init__(self):
-        self.frame = None
-        self.buffer = io.BytesIO()
-        self.condition = threading.Condition()
-
-    def write(self, buf):
-        if buf.startswith(b'\xff\xd8'):
-            # New frame, copy the existing buffer's content and notify all
-            # clients it's available
-            self.buffer.truncate()
-            with self.condition:
-                self.frame = self.buffer.getvalue()
-                self.condition.notify_all()
-            self.buffer.seek(0)
-        return self.buffer.write(buf)
 
 #Create custom HTTPRequestHandler class
 class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -133,27 +114,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         #return xmltext
 
       elif self.path == '/stream.mjpg':
-        logging.info('Streaming (mjpg).')
-        print('Streaming video.')
-        self.send_response(200)
-        self.send_header('Age', 0)
-        self.send_header('Cache-Control', 'no-cache, private')
-        self.send_header('Pragma', 'no-cache')
-        self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=FRAME')
-        self.end_headers()
-        try:
-          while True:
-            with output.condition:
-              output.condition.wait()
-              frame = output.frame
-            self.wfile.write(b'--FRAME\r\n')
-            self.send_header('Content-Type', 'image/jpeg')
-            self.send_header('Content-Length', len(frame))
-            self.end_headers()
-            self.wfile.write(frame)
-            self.wfile.write(b'\r\n')
-        except Exception as e:
-          logging.warning('Removed streaming client %s: %s', self.client_address, str(e))
+        video_stream.start_streaming(self)
 
       else:
         super(NyankoRoverHTTPRequestHandler,self).do_GET()
@@ -209,18 +170,9 @@ def start():
   log_format = '%(asctime)-15s %(thread)d %(message)s'
   logging.basicConfig(filename='nyankoroverserver.log', level=logging.DEBUG, format=log_format)
 
-  print('Initializing camera')
-  global mycamera
-  #with picamera.PiCamera(resolution='640x480', framerate=24) as mycamera:
-  mycamera = picamera.PiCamera(resolution='640x480', framerate=24)
-    
-  print('Setting up streaming output')
-  global output
-  output = StreamingOutput()
-  #Uncomment the next line to change your Pi's Camera rotation (in degrees)
-  #mycamera.rotation = 90
-  print('starting the recording')
-  mycamera.start_recording(output, format='mjpeg')
+  global video_stream
+  video_stream = VideoStream.VideoStream()
+
   # try:
   #   address = ('', 8000)
   #   server = StreamingServer(address, StreamingHandler)
@@ -276,7 +228,7 @@ def run():
     motor_controller_thread.join()
 
     logging.info('Stopping the camera recording...')
-    mycamera.stop_recording()
+    video_stream.stop_recording()
 
   finally:
     print('in "finally" block')
