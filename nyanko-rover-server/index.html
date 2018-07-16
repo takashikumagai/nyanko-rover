@@ -21,8 +21,11 @@
         <input id="slider-fwd_and_back" class="slidervertical" type="range" orient="vertical" min="-100" max="100" oninput="setFwdBackMotorSpeed(this.value)" onmouseup="onFwdBackSliderReleased()" ontouchend="onFwdBackSliderReleased()">
         </span>
         <img id="stream_mjpg" src="stream.mjpg">
-        <span id="fb_speed_display">STEER→</span>
+        <!--span id="fb_speed_display">STEER→</span-->
         <input id="slider-steering" class="slider" type="range" min="-100" max="100" oninput="setSteering(this.value)" onmouseup="onSteeringSliderReleased()" ontouchend="onSteeringSliderReleased()">
+      </div>
+      <div>
+        <input type="checkbox" name="streaming" value="Camera" onclick="switch_on_off_streaming(this)" checked>Live Streaming<br>
       </div>
 
       <!--<button type="button" name="button" onclick="">STOP</button>

@@ -39,6 +39,10 @@ function takePhoto() {
   //myWebSocket.send("sending message via WebSocket");
 }
 
+function switch_on_off_streaming(cb) {
+  alert('checkbox: ' + (cb.checked ? 'checked' : 'not checked'));
+}
+
 function onFwdBackSliderReleased() {
   console.log('resetting f/b slider')
   document.getElementById('slider-fwd_and_back').value = 0;
