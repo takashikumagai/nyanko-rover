@@ -215,19 +215,9 @@ def run():
     start()
     while(True):
       time.sleep(1)
+    logging.info("the end of try block")
   except KeyboardInterrupt:
-    logging.error("Keyboard interrupt exception")
-    httpd.shutdown()
-
-    # WebSocket shutdown
-    ws_server.close()
-
-    # Shut down the motor controller and wait for the thread to terminate
-    motor_control.shutdown()
-    motor_controller_thread.join()
-
-    logging.info('Stopping the camera recording...')
-    video_stream.stop_recording()
+    logging.info("Keyboard interrupt exception")
 
   except:
     logging.info('Exception on the nyanko-rover-server: ',sys.exc_info())
@@ -237,7 +227,21 @@ def run():
 
   finally:
     print('in "finally" block')
-    logging.info('Cleaning up...')
+    logging.info('Cleaning up...123123123')
+
+    httpd.shutdown()
+
+    # WebSocket shutdown
+    logging.info('Closing the web socket server.')
+    ws_server.close()
+
+    # Shut down the motor controller and wait for the thread to terminate
+    logging.info('Terminating the motor controller thread.')
+    motor_control.shutdown()
+    motor_controller_thread.join()
+
+    logging.info('Stopping the camera recording...')
+    video_stream.stop_recording()
     #motor_control.cleanup()
 
 if __name__ == '__main__':
