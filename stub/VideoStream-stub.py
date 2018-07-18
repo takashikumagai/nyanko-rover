@@ -3,6 +3,7 @@
 class VideoStream:
 
   def __init__(self,video_resolution='640x480'):
+    pass
 
   def stop_recording(self):
     pass
