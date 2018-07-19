@@ -8,6 +8,7 @@ import logging
 import inspect
 import threading
 import time
+import random
 
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 
@@ -24,6 +25,10 @@ ws_server = None
 motor_controller_thread = None
 video_stream = None
 
+# Stores entries like this: { 'sid': '123456' }
+# i.e. each element is a dictionary
+sesison_info_list = []
+
 def guess_script_file_directory():
   filename = inspect.getframeinfo(inspect.currentframe()).filename
   path = os.path.dirname(os.path.abspath(filename))
@@ -36,6 +41,16 @@ def on_photo_saved(stdout,stderr):
 def take_photo():
   logging.info('Taking a photo...')
   cmdutil.exec_cmd_async(['raspistill', '-o', 'myphoto.jpg'], on_photo_saved)
+
+# Returns a 6-digit PIN
+def generate_random_pin():
+  return str(random.randint(0,999999)).zfill(6)
+
+# Returns a new session ID
+def register_session_info(headers):
+  sid = str(random.randint(0,999999999999)).zfill(12)
+  sesison_info_list.append({'user-agent':headers.get('User-Agent'), 'sid':sid})
+  return sid
 
 #Create custom HTTPRequestHandler class
 class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -61,6 +76,35 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     rootdir = guess_script_file_directory()
     try:
       #print('self.path {}, thread {}'.format(self.path, threading.current_thread().ident))
+
+      #logging.info('#HEADERS (as string): ',self.headers.as_string())
+      #logging.info('#HEADERS (items): ',self.headers.items())
+
+      if self.validate_session_info(self.headers):
+          logging.debug('valid sid')
+          pass
+      elif self.path.startswith('/auth'):
+          logging.debug('auth path')
+          # The user has sent a password
+          if(self.is_password_valid(self.headers)):
+              logging.debug('returning session ID')
+              # Hands out a session ID to the client
+              sid = register_session_info(self.headers)
+              # self.send_response_and_header('text/plain',len(b'123456'))
+              sidbytes = sid.encode('utf-8')
+              self.send_response_and_header('text/plain',len(sidbytes))
+              # Always call self.wfile.write AFTER self.end_headers() otherwise responseText JS receives
+              # will have everything including Content-type and others as a single string.
+              # self.wfile.write(b'123456')
+              self.wfile.write(sidbytes)
+          else:
+              logging.debug('authentication failed. Returning an empty string instead of a session ID')
+              self.send_response_and_header('text/plain',0)
+          return
+      else:
+          logging.debug('login is required')
+          self.return_login_page()
+          return
 
       if 'mjpg' in self.path:
         print('mjpg in path')
@@ -118,12 +162,57 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         video_stream.start_streaming(self)
 
       else:
+        print('Delegating request to super class')
+        logging.info('Delegating request to super class')
         super(NyankoRoverHTTPRequestHandler,self).do_GET()
 
 
     except IOError:
       motor_control.stop_motor()
       self.send_error(404, 'file not found')
+
+  def validate_session_info(self,headers):
+    result = [item for item in headers.items() if item[0] == 'nrsid']
+    if len(result) == 1:
+      client_sid = result[0][1]
+      user_agent = [item for item in headers.items() if item[0] == 'User-Agent']
+      user_agent_value = user_agent[0][1]
+      session_info = [item for item in sesison_info_list if user_agent_value == item['user-agent']]
+      if 0 < len(session_info) and session_info[0]['sid'] == client_sid:
+        print("session info validated: ", str(session_info[0]))
+        logging.info("session info validated: " + str(session_info[0]))
+        return True
+      else:
+        print("invalid session id")
+        logging.info("invalid session id")
+        return False
+    else:
+      print("nrsid not found in header")
+      logging.info("nrsid not found in header")
+      return False
+
+  def is_password_valid(self,headers):
+    result = [item for item in headers.items() if item[0] == 'my-password']
+    print(headers.items())
+    print('search result:', result)
+    if len(result) == 1:
+      if result[0][1] == 'abc':
+        return True
+      else:
+        logging.debug('pw: ' + result[0][1])
+        print('pw: ' + result[0][1])
+        return False
+    else:
+      logging.debug('len(result)' + str(len(result)))
+      print('len(result)' + str(len(result)))
+      return False
+
+  def return_login_page(self):
+    f = open('auth.html', 'rb')
+    fs = os.fstat(f.fileno())
+    self.send_response_and_header('text/html',fs[6])
+    self.copyfile(f, self.wfile)
+    f.close()
 
 
 class NyankoRoverWebSocket(WebSocket):
@@ -210,6 +299,8 @@ def start():
   websocket_server_thread.start()
 
 def run():
+
+  global httpd
 
   try:
     start()

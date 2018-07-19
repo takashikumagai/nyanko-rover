@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Authentication Required</title>
+</head>
+<body>
+    <p id="meow">The Nyanko - Season 10</p>
+    <script>
+
+        var xhr = null;
+        var indexPageRequest = null;
+
+        function onAuthReponse() {
+            console.log('xhr onAuthReponse');
+            
+            if(xhr == null || xhr.responseText == "") {
+                // The server returned an empty string; this means that the authentication failed.
+                alert('null xhr or empty response text: ', xhr);
+                window.location = "auth_failed.html";
+            }
+
+            console.log('xhr response text:',xhr.responseText);
+            alert(xhr.responseText);
+
+            let sessionId = xhr.responseText;
+            sessionStorage.setItem('nrsid',sessionId);
+
+            indexPageRequest = new XMLHttpRequest();
+            indexPageRequest.onload = function() {alert("The page should transition to home.");};
+            indexPageRequest.open("GET","/index.html");
+            indexPageRequest.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
+            indexPageRequest.send();
+        }
+
+        var t = "";
+        let auth_result = "";
+        //while(t != "abc") {
+            let entered_text = prompt('Enter PIN to proceed',"");
+            var xhr = new XMLHttpRequest();
+            xhr.onload = onAuthReponse;
+            xhr.open("GET","auth");
+            xhr.setRequestHeader('my-password',entered_text);
+            console.log('sending xhr');
+            xhr.send();
+
+            //t = entered_text;
+        //}
+
+
+        // if(auth_result == "success") {
+        //     // Go to the page the user requested
+        //     window.location = "/index.html";
+        //     alert("auth successful");
+        // }
+        // else {
+        //     //
+        //     alert("auth failed");
+        // }
+    </script>
+</body>
+</html>
