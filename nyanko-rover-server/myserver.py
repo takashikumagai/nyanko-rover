@@ -50,6 +50,7 @@ def generate_random_pin():
 def register_session_info(headers):
   sid = str(random.randint(0,999999999999)).zfill(12)
   sesison_info_list.append({'user-agent':headers.get('User-Agent'), 'sid':sid})
+  logging.info('session_info_list updated: ' + str(sesison_info_list))
   return sid
 
 #Create custom HTTPRequestHandler class
@@ -57,6 +58,11 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
   # def __init__(self):
   #     print('NyankoRoverHTTPRequestHandler init')
+
+  def send_empty_response_and_header(self):
+      self.send_response(204)
+      #self.send_header('Content-type','text/plain')
+      self.end_headers()
 
   def send_response_and_header(self,content_type,contnet_length):
       #send code 200 response
@@ -87,20 +93,35 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
           logging.debug('auth path')
           # The user has sent a password
           if(self.is_password_valid(self.headers)):
-              logging.debug('returning session ID')
+
+              # Authentication succeeded
+              logging.debug('returning the home page with the session ID')
               # Hands out a session ID to the client
               sid = register_session_info(self.headers)
-              # self.send_response_and_header('text/plain',len(b'123456'))
-              sidbytes = sid.encode('utf-8')
-              self.send_response_and_header('text/plain',len(sidbytes))
-              # Always call self.wfile.write AFTER self.end_headers() otherwise responseText JS receives
-              # will have everything including Content-type and others as a single string.
-              # self.wfile.write(b'123456')
-              self.wfile.write(sidbytes)
+
+              # Add a customer header representing
+              #self.send_header('Nyanko-Rover-Session-ID',sid)
+
+              #self.send_empty_response_and_header()
+
+              # f = open('blank.html', 'rb')
+              # fs = os.fstat(f.fileno())
+              # self.send_response_and_header('text/html',fs[6])
+              # self.copyfile(f, self.wfile)
+              # f.close()
+
+              xml_text = '<?xml version="1.0" encoding="UTF-8"?>\n<sid>' + sid + '</sid>'
+              encoded = xml_text.encode('utf-8')
+              self.send_response_and_header('text/xml',len(encoded))
+              self.wfile.write(encoded)
+              self.wfile.flush()
+              logging.debug(str(self))
+              return
+
           else:
               logging.debug('authentication failed. Returning an empty string instead of a session ID')
               self.send_response_and_header('text/plain',0)
-          return
+              return
       else:
           logging.debug('login is required')
           self.return_login_page()
@@ -150,6 +171,8 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         xmltext = '<?xml version="1.0" encoding="UTF-8"?><p>nyanko</p>'
         encoded = xmltext.encode('utf-8')
+        # Always call self.wfile.write AFTER self.end_headers() otherwise responseText JS receives
+        # will have everything including Content-type and others as a single string.
         self.wfile.write(encoded)
         #html = b'<html><head>myhtml</head><body>myhtmlbody</body></html>'
         #self.wfile.write(html)
@@ -194,7 +217,9 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
   def is_password_valid(self,headers):
     result = [item for item in headers.items() if item[0] == 'my-password']
     print(headers.items())
+    logging.debug(str(headers.items()))
     print('search result:', result)
+    logging.debug('search result: ' + str(result))
     if len(result) == 1:
       if result[0][1] == 'abc':
         return True

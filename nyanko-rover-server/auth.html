@@ -10,35 +10,60 @@
     <p id="meow">The Nyanko - Season 10</p>
     <script>
 
+        function parseMyXml(xmlStr) {
+            return new window.DOMParser().parseFromString(xmlStr, "text/xml");
+        }
+
         var xhr = null;
         var indexPageRequest = null;
 
         function onAuthReponse() {
             console.log('xhr onAuthReponse');
             
-            if(xhr == null || xhr.responseText == "") {
+            if(xhr == null) {
                 // The server returned an empty string; this means that the authentication failed.
-                alert('null xhr or empty response text: ', xhr);
+                alert('null xhr');
                 window.location = "auth_failed.html";
             }
 
-            console.log('xhr response text:',xhr.responseText);
-            alert(xhr.responseText);
+            if(xhr.responseText) {
+                alert('xhr.responseText:'+xhr.responseText);
+            }
 
-            let sessionId = xhr.responseText;
+            // let sessionId = xhr.getResponseHeader('Nyanko-Rover-Session-ID');
+            // if(sessionId == null) {
+            //     alert('server did not return a session id');
+            //     window.location = "auth_failed.html";
+            // }
+
+            var sidXml = parseMyXml(xhr.responseText);
+            nodes = sidXml.getElementsByTagName('sid');
+            if(nodes.length == 0) {
+                alert('sid node not detected.')
+            }
+            let sessionId = nodes[0].innerHTML;
+
+            console.log('xhr response text: '+xhr.responseText);
+            console.log('session ID: '+sessionId);
+            //alert(xhr.responseText);
+
             sessionStorage.setItem('nrsid',sessionId);
 
             indexPageRequest = new XMLHttpRequest();
             indexPageRequest.onload = function() {alert("The page should transition to home.");};
             indexPageRequest.open("GET","/index.html");
             indexPageRequest.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
+            alert('About to send a GET request.');
             indexPageRequest.send();
+
+            alert('GET request sent.');
         }
 
         var t = "";
         let auth_result = "";
         //while(t != "abc") {
-            let entered_text = prompt('Enter PIN to proceed',"");
+            var entered_text = prompt('Enter PIN to proceed',"");
+            alert('entered text: '+entered_text)
             var xhr = new XMLHttpRequest();
             xhr.onload = onAuthReponse;
             xhr.open("GET","auth");
