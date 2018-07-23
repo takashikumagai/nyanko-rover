@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 from time import sleep
+import logging
+
+shtudown_requested = False
 
 # Low-level functions
 
@@ -32,10 +35,14 @@ def start_motor_backward(rotation_speed):
     rotate_motor_ccw()
 
 def run():
-    while True:
+    global shtudown_requested
+    while not shtudown_requested:
         pass
+    logging.debug('Exiting motor_control.run() (stub).')
 
 def shutdown():
+    global shtudown_requested
+    shtudown_requested = True
     pass
 
 if __name__ == '__main__':
