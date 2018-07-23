@@ -12,7 +12,6 @@
 <body>
     <div id="document-body">
 
-    <p id="meow">The Nyanko - Season 10</p>
     <script>
 
         function parseMyXml(xmlStr) {
@@ -76,31 +75,19 @@
             console.log('GET request sent.');
         }
 
-        var t = "";
         let auth_result = "";
-        //while(t != "abc") {
+        let numRetries = 3;
+        //while(true) {
             var entered_text = prompt('Enter PIN to proceed',"");
-            alert('entered text: '+entered_text)
+            console.log('entered text: '+entered_text)
             var xhr = new XMLHttpRequest();
             xhr.onload = onAuthReponse;
             xhr.open("GET","auth");
             xhr.setRequestHeader('my-password',entered_text);
             console.log('sending xhr');
             xhr.send();
-
-            //t = entered_text;
         //}
 
-
-        // if(auth_result == "success") {
-        //     // Go to the page the user requested
-        //     window.location = "/index.html";
-        //     alert("auth successful");
-        // }
-        // else {
-        //     //
-        //     alert("auth failed");
-        // }
     </script>
     </div>
 </body>
