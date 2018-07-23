@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Authentication Required</title>
+    <script src="nr_websocket.js"></script>
+    <script src="nr_rover_control.js"></script>
+    <script src="nr_gamepad.js"></script>
 </head>
 <body>
+    <div id="document-body">
+
     <p id="meow">The Nyanko - Season 10</p>
     <script>
 
@@ -22,41 +27,53 @@
             
             if(xhr == null) {
                 // The server returned an empty string; this means that the authentication failed.
-                alert('null xhr');
+                console.log('null xhr');
                 window.location = "auth_failed.html";
             }
 
             if(xhr.responseText) {
-                alert('xhr.responseText:'+xhr.responseText);
+                console.log('xhr.responseText:'+xhr.responseText);
             }
 
+            if(xhr.responseText.length == 0) {
+                console.log('zero length response text');
+                window.location = "auth_failed.html";
+            }
+
+            // Storing session ID in response header somehow caused invalid response header
+            // and couldn't find a way to resolve the problem so decided not to use this.
             // let sessionId = xhr.getResponseHeader('Nyanko-Rover-Session-ID');
             // if(sessionId == null) {
             //     alert('server did not return a session id');
             //     window.location = "auth_failed.html";
             // }
 
+            console.log('xhr response text: '+xhr.responseText);
+
             var sidXml = parseMyXml(xhr.responseText);
             nodes = sidXml.getElementsByTagName('sid');
             if(nodes.length == 0) {
-                alert('sid node not detected.')
+                console.log('sid node not detected.');
+                window.location = "auth_failed.html";
             }
             let sessionId = nodes[0].innerHTML;
 
-            console.log('xhr response text: '+xhr.responseText);
             console.log('session ID: '+sessionId);
             //alert(xhr.responseText);
 
             sessionStorage.setItem('nrsid',sessionId);
 
             indexPageRequest = new XMLHttpRequest();
-            indexPageRequest.onload = function() {alert("The page should transition to home.");};
+            indexPageRequest.onload = function() {
+                //alert("The page should transition to home.");
+                //document.getElementsByTagName("title")[0].innerHTML = 'Rover Control';
+                document.getElementById('document-body').innerHTML = indexPageRequest.responseText;
+            };
             indexPageRequest.open("GET","/index.html");
             indexPageRequest.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
-            alert('About to send a GET request.');
+            console.log('About to send a GET request.');
             indexPageRequest.send();
-
-            alert('GET request sent.');
+            console.log('GET request sent.');
         }
 
         var t = "";
@@ -85,5 +102,6 @@
         //     alert("auth failed");
         // }
     </script>
+    </div>
 </body>
 </html>

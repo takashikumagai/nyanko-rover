@@ -129,6 +129,11 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
           self.return_login_page()
           return
 
+      if self.path.startswith('/index.html'):
+        logging.debug('returning index.html (home)')
+        self.return_index_html_page()
+        return
+
       if 'mjpg' in self.path:
         print('mjpg in path')
         logging.debug('mjpg in self.path')
@@ -233,6 +238,13 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       logging.debug('len(result)' + str(len(result)))
       print('len(result)' + str(len(result)))
       return False
+  
+  def return_index_html_page(self):
+    f = open('index.html', 'rb')
+    fs = os.fstat(f.fileno())
+    self.send_response_and_header('text/html',fs[6])
+    self.copyfile(f, self.wfile)
+    f.close()
 
   def return_login_page(self):
     f = open('auth.html', 'rb')
