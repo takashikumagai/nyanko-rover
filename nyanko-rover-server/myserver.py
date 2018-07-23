@@ -23,6 +23,8 @@ import networktool
 httpd = None
 ws_server = None
 motor_controller_thread = None
+web_server_thread = None
+websocket_server_thread = None
 video_stream = None
 
 # Stores entries like this: { 'sid': '123456' }
@@ -282,10 +284,16 @@ class StreamingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
 # In other words, invocation of this function will create two new threads.
 def start():
 
+  global httpd
+  global ws_server
+  global video_stream
+  global motor_controller_thread
+  global web_server_thread
+  global websocket_server_thread
+
   log_format = '%(asctime)-15s %(thread)d %(message)s'
   logging.basicConfig(filename='nyankoroverserver.log', level=logging.DEBUG, format=log_format)
 
-  global video_stream
   video_stream = VideoStream.VideoStream()
 
   # try:
@@ -326,6 +334,11 @@ def start():
 def run():
 
   global httpd
+  global ws_server
+  global video_stream
+  global motor_controller_thread
+  global web_server_thread
+  global websocket_server_thread
 
   try:
     start()
@@ -345,16 +358,28 @@ def run():
     print('in "finally" block')
     logging.info('Cleaning up...123123123')
 
-    httpd.shutdown()
+    logging.info('Shutting down the web server.')
+    try:
+      httpd.shutdown()
+      web_server_thread.join()
+    except KeyboardInterrupt:
+      pass
 
     # WebSocket shutdown
     logging.info('Closing the web socket server.')
-    ws_server.close()
+    try:
+      ws_server.close()
+      websocket_server_thread.join()
+    except KeyboardInterrupt:
+      pass
 
     # Shut down the motor controller and wait for the thread to terminate
     logging.info('Terminating the motor controller thread.')
     motor_control.shutdown()
-    motor_controller_thread.join()
+    try:
+      motor_controller_thread.join()
+    except KeyboardInterrupt:
+      pass
 
     logging.info('Stopping the camera recording...')
     video_stream.stop_recording()
