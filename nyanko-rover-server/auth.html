@@ -4,6 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: 5px auto; /* 15% from the top and centered */
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+    /* Position it in the top right corner outside of the modal */
+    position: absolute;
+    right: 25px;
+    top: 0; 
+    color: #000;
+    font-size: 35px;
+    font-weight: bold;
+}
+
+/* Close button on hover */
+.close:hover,
+.close:focus {
+    color: red;
+    cursor: pointer;
+}
+
+/* Add Zoom Animation */
+.animate {
+    -webkit-animation: animatezoom 0.6s;
+    animation: animatezoom 0.6s
+}
+
+@-webkit-keyframes animatezoom {
+    from {-webkit-transform: scale(0)} 
+    to {-webkit-transform: scale(1)}
+}
+
+@keyframes animatezoom {
+    from {transform: scale(0)} 
+    to {transform: scale(1)}
+}
+    </style>
     <title>Authentication Required</title>
     <script src="nr_websocket.js"></script>
     <script src="nr_rover_control.js"></script>
@@ -11,6 +69,30 @@
 </head>
 <body>
     <div id="document-body">
+
+    <!-- The Modal -->
+    <div id="id01" class="modal">
+        <!--span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span-->
+        
+        <!-- Modal Content -->
+        <form class="modal-content animate">
+        
+        <div class="container">
+            <label for="psw"><b>Password</b></label>
+            <input id="pw" type="password" placeholder="Enter Password" name="psw" required>
+        
+            <button type="button" onclick="onLoginClicked()">Login to control page</button>
+            <label>
+            <input type="checkbox" checked="checked" name="remember"> Remember me
+            </label>
+        </div>
+        
+            <!--div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
+                <span class="psw">Forgot <a href="#">password?</a></span>
+            </div-->
+        </form>
+        </div>
 
     <script>
 
@@ -26,16 +108,16 @@
             
             if(xhr == null) {
                 // The server returned an empty string; this means that the authentication failed.
-                console.log('null xhr');
+                alert('null xhr');
                 window.location = "auth_failed.html";
             }
 
             if(xhr.responseText) {
-                console.log('xhr.responseText:'+xhr.responseText);
+                alert('xhr.responseText:'+xhr.responseText);
             }
 
             if(xhr.responseText.length == 0) {
-                console.log('zero length response text');
+                alert('zero length response text');
                 window.location = "auth_failed.html";
             }
 
@@ -49,8 +131,8 @@
 
             console.log('xhr response text: '+xhr.responseText);
 
-            var sidXml = parseMyXml(xhr.responseText);
-            nodes = sidXml.getElementsByTagName('sid');
+            let sidXml = parseMyXml(xhr.responseText);
+            let nodes = sidXml.getElementsByTagName('sid');
             if(nodes.length == 0) {
                 console.log('sid node not detected.');
                 window.location = "auth_failed.html";
@@ -64,31 +146,47 @@
 
             indexPageRequest = new XMLHttpRequest();
             indexPageRequest.onload = function() {
-                //alert("The page should transition to home.");
+                alert("The page should transition to home.");
                 //document.getElementsByTagName("title")[0].innerHTML = 'Rover Control';
+
+                // Close the login modal dialog
+                document.getElementById('id01').style.display='none';
+
                 document.getElementById('document-body').innerHTML = indexPageRequest.responseText;
             };
-            indexPageRequest.open("GET","/index.html");
+            //indexPageRequest.open("GET","/main");
+            indexPageRequest.open("GET","/main?_=" + new Date().getTime())
             indexPageRequest.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
             console.log('About to send a GET request.');
             indexPageRequest.send();
             console.log('GET request sent.');
         }
 
-        let auth_result = "";
-        let numRetries = 3;
-        //while(true) {
-            var entered_text = prompt('Enter PIN to proceed',"");
-            console.log('entered text: '+entered_text)
-            var xhr = new XMLHttpRequest();
+        function onLoginClicked() {
+
+            alert('onSubmit called.');
+            let entered_text = document.getElementById('pw').value;
+            alert('entered text: '+entered_text)
+            xhr = new XMLHttpRequest();
             xhr.onload = onAuthReponse;
-            xhr.open("GET","auth");
+            //xhr.open("GET","auth");
+            xhr.open("GET","/auth?_=" + new Date().getTime())
             xhr.setRequestHeader('my-password',entered_text);
             console.log('sending xhr');
             xhr.send();
+        }
+
+        let auth_result = "";
+        let numRetries = 3;
+        //while(true) {
+            //var entered_text = prompt('Enter PIN to proceed',"");
+
+            document.getElementById('id01').style.display='block';
+
         //}
 
     </script>
+
     </div>
 </body>
 </html>

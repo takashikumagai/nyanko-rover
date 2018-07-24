@@ -45,8 +45,12 @@ function onServerAddressOrHostnameAcquired(evt) {
     console.log('onServerAddressOrHostnameAcquired');
     console.log(evt.target.responseText);
     serverAddressXml = parseXml(evt.target.responseText);
-    nodes = serverAddressXml.getElementsByTagName('nyanko');
-    host = nodes[0].innerHTML;
+    let nodes = serverAddressXml.getElementsByTagName('nyanko');
+    console.log(nodes);
+    if(nodes.length == 0) {
+        return
+    }
+    let host = nodes[0].innerHTML;
     console.log(host);
 
     initWebSocket(host);

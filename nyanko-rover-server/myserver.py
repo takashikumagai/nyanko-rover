@@ -50,8 +50,10 @@ def generate_random_pin():
 
 # Returns a new session ID
 def register_session_info(headers):
+  global sesison_info_list
   sid = str(random.randint(0,999999999999)).zfill(12)
   sesison_info_list.append({'user-agent':headers.get('User-Agent'), 'sid':sid})
+  print('session_info_list updated: ' + str(sesison_info_list))
   logging.info('session_info_list updated: ' + str(sesison_info_list))
   return sid
 
@@ -83,13 +85,21 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     rootdir = guess_script_file_directory()
     try:
-      #print('self.path {}, thread {}'.format(self.path, threading.current_thread().ident))
+      print('self.path {}, thread {}'.format(self.path, threading.current_thread().ident))
 
       #logging.info('#HEADERS (as string): ',self.headers.as_string())
       #logging.info('#HEADERS (items): ',self.headers.items())
 
+      # Check if the path has either
+      # 1. has a valid sesison info, or
+      # 2. a static resource or a script which is not an html file.
+      # - 2 allows .js/.jpg/ files to be returned without session info (no way to request these with session info)
+      #   whereas index.html and other API calls (motor controls, etc) require session info
       if self.validate_session_info(self.headers):
           logging.debug('valid sid')
+          pass
+      elif 0 < self.path.find('.') and self.path.find('.html') == -1:
+          logging.debug(str.format('bypassing (path: {})',self.path))
           pass
       elif self.path.startswith('/auth'):
           logging.debug('auth path')
@@ -97,7 +107,8 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
           if(self.is_password_valid(self.headers)):
 
               # Authentication succeeded
-              logging.debug('returning the home page with the session ID')
+              print('returning the home page with the session ID')
+              logging.info('returning the home page with the session ID')
               # Hands out a session ID to the client
               sid = register_session_info(self.headers)
 
@@ -129,7 +140,8 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
           self.return_login_page()
           return
 
-      if self.path.startswith('/index.html'):
+      if self.path.startswith('/main'):
+        print('returning index.html (home)')
         logging.debug('returning index.html (home)')
         self.return_index_html_page()
         return
@@ -202,7 +214,16 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       self.send_error(404, 'file not found')
 
   def validate_session_info(self,headers):
+    global sesison_info_list
+
+    if len(sesison_info_list) == 0:
+      print("No session info on the server")
+      logging.info("No session info on the server")
+      return False
+
     result = [item for item in headers.items() if item[0] == 'nrsid']
+    if 1 < len(result):
+      print(str(result))
     if len(result) == 1:
       client_sid = result[0][1]
       user_agent = [item for item in headers.items() if item[0] == 'User-Agent']
@@ -218,6 +239,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         return False
     else:
       print("nrsid not found in header")
+      print(str(headers.items()))
       logging.info("nrsid not found in header")
       return False
 
