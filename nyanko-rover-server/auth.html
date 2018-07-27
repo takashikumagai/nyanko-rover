@@ -25,7 +25,7 @@
     background-color: #fefefe;
     margin: 5px auto; /* 15% from the top and centered */
     border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
+    width: 260px;
 }
 
 /* The Close Button */
@@ -39,6 +39,10 @@
     font-weight: bold;
 }
 
+.modal-element {
+    padding: 6px;
+}
+
 /* Close button on hover */
 .close:hover,
 .close:focus {
@@ -46,21 +50,6 @@
     cursor: pointer;
 }
 
-/* Add Zoom Animation */
-.animate {
-    -webkit-animation: animatezoom 0.6s;
-    animation: animatezoom 0.6s
-}
-
-@-webkit-keyframes animatezoom {
-    from {-webkit-transform: scale(0)} 
-    to {-webkit-transform: scale(1)}
-}
-
-@keyframes animatezoom {
-    from {transform: scale(0)} 
-    to {transform: scale(1)}
-}
     </style>
     <title>Authentication Required</title>
     <script src="nr_websocket.js"></script>
@@ -75,17 +64,24 @@
         <!--span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span-->
         
         <!-- Modal Content -->
-        <form class="modal-content animate">
+        <form class="modal-content">
         
         <div class="container">
-            <label for="psw"><b>Password</b></label>
-            <input id="pw" type="password" placeholder="Enter Password" name="psw" required>
-        
-            <button type="button" onclick="onLoginClicked()">Login to control page</button>
-            <label>
-            <input type="checkbox" checked="checked" name="remember"> Remember me
-            </label>
-        </div>
+            <div class="modal-element">
+                <label for="psw"><b>Password</b></label>
+            </div>
+            <div class="modal-element">
+                <input id="pw" type="password" placeholder="Enter Password" name="psw" required>
+            </div>
+            <div class="modal-element">
+                <button type="button" onclick="onLoginClicked()">Login to control page</button>
+            </div>
+            <div>
+                <label>
+                <input type="checkbox" checked="checked" name="remember"> Remember me
+                </label>
+            </div>
+    </div>
         
             <!--div class="container" style="background-color:#f1f1f1">
                 <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
