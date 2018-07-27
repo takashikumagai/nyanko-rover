@@ -29,8 +29,12 @@ class VideoStream:
 
     def __init__(self,video_resolution='640x480'):
 
-        logging.info('Initializing camera')
-        self.camera = picamera.PiCamera(resolution=video_resolution, framerate=24)
+        try:
+            logging.info('Initializing camera')
+            self.camera = picamera.PiCamera(resolution=video_resolution, framerate=24)
+        except:
+            logging.info('Camera init failed.')
+            return
 
         #Uncomment the next line to change your Pi's Camera rotation (in degrees)
         #mycamera.rotation = 90
@@ -45,9 +49,15 @@ class VideoStream:
         self.stop_streaming = False
 
     def stop_recording(self):
-        self.camera.stop_recording()
+        if self.camera != None:
+            self.camera.stop_recording()
 
     def start_streaming(self,http_request_handler):
+
+        if self.camera == None:
+            logging.info('camera not available')
+            return
+
         logging.info('Streaming (mjpg).')
         print('Streaming video.')
         http_request_handler.send_response(200)
