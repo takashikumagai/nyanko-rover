@@ -8,25 +8,30 @@ shtudown_requested = False
 # Low-level functions
 
 def rotate_motor_cw():
-    pass
+    print('🚗 Motor-CW')
 
 def rotate_motor_ccw():
-    pass
+    print('🚗 Motor-CCW')
 
 def stop_motor():
-    pass
+    print('🚗 Motor-STOP')
 
 def init():
-    pass
+    print('🚗 Init')
 
 def cleanup():
-    pass
+    print('🚗 Cleanup')
 
 
 # High-level functions
+
+# param[in] speed must be an integer in the range [-100,100]
 def set_fwd_back_motor_speed(speed):
-    print('fwd/back {}'.format(speed))
-    pass
+    print('🚗 fwd/back {}'.format(speed))
+
+# param[in] steer must be an integer in the range [-100,100]
+def set_steering(steer):
+    print('🚗 steer {}'.format(steer))
 
 def start_motor_forward(rotation_speed):
     rotate_motor_cw()
