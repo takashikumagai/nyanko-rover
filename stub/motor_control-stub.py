@@ -42,7 +42,8 @@ def start_motor_backward(rotation_speed):
 def run():
     global shtudown_requested
     while not shtudown_requested:
-        pass
+        sleep(0.05)
+
     logging.debug('Exiting motor_control.run() (stub).')
 
 def shutdown():
