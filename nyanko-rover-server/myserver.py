@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import http.server
+import http.cookies
 import socketserver
 import sys
 import os
@@ -86,6 +87,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     rootdir = guess_script_file_directory()
     try:
       print('self.path {}, thread {}'.format(self.path, threading.current_thread().ident))
+      print('cookie: {}'.format(self.headers.get('Cookie')))
 
       #logging.info('#HEADERS (as string): ',self.headers.as_string())
       #logging.info('#HEADERS (items): ',self.headers.items())
@@ -98,17 +100,14 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       if self.validate_session_info(self.headers):
           logging.debug('valid sid')
           pass
-      elif 0 < self.path.find('.') and self.path.find('.html') == -1:
-          logging.debug(str.format('bypassing (path: {})',self.path))
-          pass
       elif self.path.startswith('/auth'):
           logging.debug('auth path')
           # The user has sent a password
           if(self.is_password_valid(self.headers)):
 
               # Authentication succeeded
-              print('returning the home page with the session ID')
-              logging.info('returning the home page with the session ID')
+              print('Issuing a session ID')
+              logging.info('Issuing a session ID')
               # Hands out a session ID to the client
               sid = register_session_info(self.headers)
 
@@ -135,16 +134,17 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
               logging.debug('authentication failed. Returning an empty string instead of a session ID')
               self.send_response_and_header('text/plain',0)
               return
+
       else:
           logging.debug('login is required')
           self.return_login_page()
           return
 
-      if self.path.startswith('/main'):
-        print('returning index.html (home)')
-        logging.debug('returning index.html (home)')
-        self.return_index_html_page()
-        return
+      # if self.path.startswith('/main'):
+      #   print('returning index.html (home)')
+      #   logging.debug('returning index.html (home)')
+      #   self.return_index_html_page()
+      #   return
 
       if 'mjpg' in self.path:
         print('mjpg in path')
@@ -221,11 +221,13 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       logging.info("No session info on the server")
       return False
 
-    result = [item for item in headers.items() if item[0] == 'nrsid']
-    if 1 < len(result):
-      print(str(result))
-    if len(result) == 1:
-      client_sid = result[0][1]
+    cookie = headers.get('Cookie')
+    print('vsi() Cookie: {}'.format(str(cookie)))
+    sc = http.cookies.SimpleCookie()
+    sc.load(str(cookie))
+    if 'nrsid' in sc:
+      # The cookie has 'nrsid'
+      client_sid = sc['nrsid'].value
       user_agent = [item for item in headers.items() if item[0] == 'User-Agent']
       user_agent_value = user_agent[0][1]
       session_info = [item for item in sesison_info_list if user_agent_value == item['user-agent']]
@@ -238,8 +240,8 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         logging.info("invalid session id")
         return False
     else:
-      print("nrsid not found in header")
-      print(str(headers.items()))
+      print("nrsid not found in cookie")
+      print(str(cookie))
       logging.info("nrsid not found in header")
       return False
 

@@ -52,9 +52,6 @@
 
     </style>
     <title>Authentication Required</title>
-    <script src="nr_websocket.js"></script>
-    <script src="nr_rover_control.js"></script>
-    <script src="nr_gamepad.js"></script>
 </head>
 <body>
     <div id="document-body">
@@ -140,6 +137,9 @@
 
             sessionStorage.setItem('nrsid',sessionId);
 
+            let cookieStr = "nrsid=" + sessionId.toString();
+            document.cookie = cookieStr;
+
             indexPageRequest = new XMLHttpRequest();
             indexPageRequest.onload = function() {
                 alert("The page should transition to home.");
@@ -151,8 +151,8 @@
                 document.getElementById('document-body').innerHTML = indexPageRequest.responseText;
             };
             //indexPageRequest.open("GET","/main");
-            indexPageRequest.open("GET","/main?_=" + new Date().getTime())
-            indexPageRequest.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
+            //indexPageRequest.open("GET","/main?_=" + new Date().getTime());
+            indexPageRequest.open("GET","/index.html");
             console.log('About to send a GET request.');
             indexPageRequest.send();
             console.log('GET request sent.');
@@ -160,7 +160,7 @@
 
         function onLoginClicked() {
 
-            alert('onSubmit called.');
+            //alert('onSubmit called.');
             let entered_text = document.getElementById('pw').value;
             alert('entered text: '+entered_text)
             xhr = new XMLHttpRequest();

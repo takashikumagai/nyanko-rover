@@ -4,40 +4,30 @@
 function moveForward() {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET","forward");
-  let sessionId = sessionStorage.getItem('nrsid');
-  xmlhttp.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
   xmlhttp.send();
 }
 
 function moveBackward() {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET","backward?duration=3");
-  let sessionId = sessionStorage.getItem('nrsid');
-  xmlhttp.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
   xmlhttp.send();
 }
 
 function steerLeft() {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET","steer?dir=left");
-  let sessionId = sessionStorage.getItem('nrsid');
-  xmlhttp.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
   xmlhttp.send();
 }
 
 function steerRight() {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET","steer?dir=right");
-  let sessionId = sessionStorage.getItem('nrsid');
-  xmlhttp.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
   xmlhttp.send();
 }
 
 function stop() {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET","stop");
-  let sessionId = sessionStorage.getItem('nrsid');
-  xmlhttp.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
   xmlhttp.send();
   //myWebSocket.send("sending message via WebSocket");
 }
@@ -45,8 +35,6 @@ function stop() {
 function takePhoto() {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET","take_photo");
-  let sessionId = sessionStorage.getItem('nrsid');
-  xmlhttp.setRequestHeader('nrsid',sessionId); // do_GET of the server checks the sid.
   xmlhttp.send();
   //myWebSocket.send("sending message via WebSocket");
 }
