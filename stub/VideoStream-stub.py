@@ -8,5 +8,5 @@ class VideoStream:
   def stop_recording(self):
     pass
 
-  def start_recording(self,http_handler):
+  def start_streaming(self,http_request_handler):
     pass
