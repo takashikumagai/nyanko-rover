@@ -1,3 +1,12 @@
+/* This is from w3schools tutorial https://www.w3schools.com/howto/howto_css_full_page.asp
+   On the linked page, it says,
+   Note: To make sure that the image covers the whole screen, you must also
+   apply height: 100% to both <html> and <body>:
+*/
+body, html {
+    height: 100%;
+}
+
 body {
     padding: 0px;
     margin: 0px;
@@ -12,6 +21,30 @@ body {
     color: white;
     margin: 0px;
     font-family: sans-serif;
+}
+
+#sidenavbtn {
+    cursor: pointer;
+}
+
+#status-page {
+    display: none;
+}
+
+#status-page ul {
+    font-family: sans-serif;
+    font-size: 24px;
+}
+
+#control-test-page {
+    display: none;
+    position: fixed;
+    bottom: 0px;
+
+    /* align center */
+    width: 400px;
+    margin-left: -200px;
+    left: 50%;
 }
 
 .motor_control {
@@ -97,6 +130,27 @@ input[type=range]::-webkit-slider-thumb/*, .slider::-moz-range-thumb, .slider::-
   outline: none;
 }
 
+#document-body {
+    /* Would a mpjg resource work like this? */
+    /*background-image: url("stream.mjpg");*/
+    /*background-image: url("../sample_images/360.jpg");*/
+
+    /* Full height */
+    height: 100%;
+
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.stream-bg {
+     background-image: url("../stream.mjpg");
+}
+
+.placeholder-bg {
+    background-image: url("../sample_images/640x360.jpg");
+}
 
 #slider-steering {
     height: 30px;
@@ -138,6 +192,7 @@ input[type=range]::-webkit-slider-thumb/*, .slider::-moz-range-thumb, .slider::-
 }
 
 #gamepad_info {
+    display: none;
     padding: 10px;
 }
 

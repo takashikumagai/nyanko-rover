@@ -200,6 +200,14 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response_and_header('text/xml',len(encoded))
         #return xmltext
 
+      elif self.path == '/hw-info':
+        xml_text = '<?xml version="1.0" encoding="UTF-8"?>\n<info>' + 'nyanko' + '</info>'
+        encoded = xml_text.encode('utf-8')
+        self.send_response_and_header('text/xml',len(encoded))
+        self.wfile.write(encoded)
+        self.wfile.flush()
+        return
+
       elif self.path == '/stream.mjpg':
         video_stream.start_streaming(self)
 

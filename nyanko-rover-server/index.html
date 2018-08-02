@@ -3,66 +3,80 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <script src="js/side_navigation_menu.js"></script>
+    <script src="js/menu.js"></script>
     <script src="nr_websocket.js"></script>
     <script src="nr_rover_control.js"></script>
     <script src="nr_gamepad.js"></script>
-    <!--<script src="exec_cmd.js"></script>-->
-    <!--<script src="motor_control.js"></script>-->
+    <link rel="stylesheet" href="css/side_navigation_menu.css">
     <link rel="stylesheet" href="css/master.css">
   </head>
   <body>
+  
+    <div id="mysidenav" class="sidenav">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeSideNavMenu()">&times;</a>
+      <a href="javascript:void(0)" onclick="openLiveFeedAndControl()">Live Feed + Control</a>
+      <a href="javascript:void(0)" onclick="openControlTest()">Control Test</a>
+      <a href="javascript:void(0)" onclick="openStatus()">Status</a>
+      <a href="javascript:void(0)" onclick="openDeubg()">Debug</a>
+    </div>
+
     <div id="document-body">
 
     <div id="top">
-      <span id="pagetitle">Remote Control</span>
+      <span id="sidenavbtn" onclick="openSideNavMenu()">&#x2630;</span>
       <span id="network_info"></span>
     </div>
-    <div>
-      <div id="main_controls">
-        <span id="fwd_and_back">
-        <input id="slider-fwd_and_back" class="slidervertical" type="range" orient="vertical" min="-100" max="100" oninput="setFwdBackMotorSpeed(this.value)" onmouseup="onFwdBackSliderReleased()" ontouchend="onFwdBackSliderReleased()">
-        </span>
-        <img id="stream_mjpg" src="stream.mjpg">
-        <!--span id="fb_speed_display">STEER→</span-->
-        <input id="slider-steering" class="slider" type="range" min="-100" max="100" oninput="setSteering(this.value)" onmouseup="onSteeringSliderReleased()" ontouchend="onSteeringSliderReleased()">
-      </div>
-      <div>
-        <input type="checkbox" name="streaming" value="Camera" onclick="switch_on_off_streaming(this)" checked>Live Streaming<br>
-      </div>
 
-      <!--<button type="button" name="button" onclick="">STOP</button>
-      <button type="button" name="button" onclick="">BACKWARD</button>-->
+    <div id="live-feed-and-control-page">
     </div>
-    <hr>
-    <div><img src="myphoto.jpg" alt="" width="160"></div>
+
+    <!-- Status -->
+    <div id="status-page">
+      <ul>
+        <li>Systme uptime: <span id="system-uptime"></span></li>
+        <li>CPU: <span id="cpu-usage"></span></li>
+        <li>SoC core temp.: <span id="soc-core-temp"></span></li>
+      </ul>
+    </div>
+
+    <!-- Control Test -->
+    <div id="control-test-page">
+      <div class="motor_control">
+        <button class="motor_control_button" type="button" name="forward_button" onclick="moveForward()">&#x25B2;&#x25B2;</button>
+      </div>
+      <div class="motor_control">
+        <button class="motor_control_button" type="button" name="forward_button" onclick="setFwdBackMotorSpeed(50)">&#x25B2;</button>
+      </div>
+      <div class="motor_control">
+        <button class="motor_control_button" type="button" name="steer_left_button" onclick="steerLeft()">&#x25C0;</button>
+        <button class="motor_control_button" type="button" name="sotp_button" onclick="stop()">STOP</button>
+        <button class="motor_control_button" type="button" name="steer_right_button" onclick="steerRight()">&#x25B6;</button>
+      </div>
+      <div class="motor_control">
+        <button class="motor_control_button" type="button" name="forward_button" onclick="setFwdBackMotorSpeed(-50)">&#x25BC;</button>
+      </div>
+      <div class="motor_control">
+        <button class="motor_control_button" type="button" name="backward_button" onclick="moveBackward()">&#x25BC;&#x25BC;</button>
+      </div>
+    </div>
+  
+    <!--hr>
     <div><button class="photo_shoot_button" type="button" onclick="takePhoto()">TAKE A PHOTO</button></div>
-    <hr>
-    <div>
-      <form action="">
-        <input type="checkbox">Enable control using a gamepad<br>
-      </form>
-    </div>
-    <div id="gamepad_info">
-      <div>
+    <hr-->
+
+    <!-- Debug -->
+    <div id="debug-page">
+      <div id="gamepad_info">
+        <div>
           <span>Gamepad: </span><span id="gamepad_id"></span><span id="gamepad_index"></span>
+        </div>
+        <div>
+          <span id="gamepad_button_info"></span>
+        </div>
+          <div id="gamepad_axes">
+        </div>
       </div>
-      <div>
-        <span id="gamepad_button_info"></span>
-      </div>
-      <div id="gamepad_axes">
-      </div>
-    </div>
-    <hr>
-    <div class="motor_control">
-      <button class="motor_control_button" type="button" name="forward_button" onclick="moveForward()">FORWARD</button>
-    </div>
-    <div class="motor_control">
-      <button class="motor_control_button" type="button" name="steer_left_button" onclick="steerLeft()">LEFT</button>
-      <button class="motor_control_button" type="button" name="sotp_button" onclick="stop()">STOP</button>
-      <button class="motor_control_button" type="button" name="steer_right_button" onclick="steerRight()">RIGHT</button>
-    </div>
-    <div class="motor_control">
-      <button class="motor_control_button" type="button" name="backward_button" onclick="moveBackward()">BACKWARD</button>
     </div>
 
     </div>
