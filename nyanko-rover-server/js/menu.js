@@ -43,18 +43,21 @@ function openDeubg() {
     getDebug().style.display = 'block';
 
 }
-/*
-function updateCoreTemp() {
-    XMLHttpRequest xhr = new XMLHttpRequest();
-    xhr.open('GET','soccoretemp');
+
+function updateHwStatus() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET','hw-status');
     xhr.load = function() {
-        document.getDocumentById('soc-core-temp').innerHTML = xhr.responseText;
+        var j = xhr.responseText;
+        console.log(j);
+        //document.getDocumentById('soc-core-temp').innerHTML = j.temp;
+        //document.
     }
     xhr.send();
 }
-
+/*
 function updateCpuUsage() {
-    XMLHttpRequest xhr = new XMLHttpRequest();
+    var xhr = new XMLHttpRequest();
     xhr.open('GET','cpuusage');
     xhr.load = function() {
         document.getDocumentById('cpu-usage').innertHTML = xhr.responseText;
@@ -66,18 +69,34 @@ function updateRamInfo() {
 }
 */
 
+function onHwStatusLoaded() {
+    console.log("onHwStatusLoaded()");
+}
 
-console.log('Setting window.onload function');
-window.onload = function() {
+function onHwStatusFailed() {
+    console.log("onHwStatusFailed()");
+}
 
-    new Promise( function(resolve,reject) {
+
+//console.log('Setting window.onload function');
+//window.onload = function() {
+//    console.log('window.onload is running.');
+//    var xhr = new XMLHttpRequest();
+//    xhr.open('GET','hw-status');
+//    xhr.load = function() {alert("hw-status onload");};
+//    xhr.onerror = function() {alert("hw-status onerror");};
+//    xhr.send();
+
+/*    new Promise( function(resolve,reject) {
 
         // executor function - these lines of code run immediately, before the Promise constructor returns the created object.
         console.log('Executor is running.');
         var xhr = new XMLHttpRequest();
-        xhr.open('GET','hw-info');
-        xhr.load = () => resolve(xhr.responseText);
-        xhr.onerror = () => reject(xhr.statusText);
+        xhr.open('GET','hw-status');
+        xhr.load = function() {alert("hw-status onload");};
+        xhr.onerror = function() {alert("hw-status onerror");};
+        //xhr.load = () => onHwStatusLoaded();//resolve(xhr.responseText);
+        //xhr.onerror = () => onHwStatusFailed();//reject(xhr.statusText);
         xhr.send();
 
     }).then(function(msg){
@@ -93,5 +112,5 @@ window.onload = function() {
         console.log('on rejected');
         // on rejected
         document.getElementById('document-body').className = 'placeholder-bg';
-    });
-}
+    });*/
+//}
