@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0">
     <style>
 /* The Modal (background) */
 .modal {
@@ -140,22 +141,31 @@
             let cookieStr = "nrsid=" + sessionId.toString();
             document.cookie = cookieStr;
 
+            window.location.assign('/index.html?_=' + new Date().getTime());
+/*
             indexPageRequest = new XMLHttpRequest();
             indexPageRequest.onload = function() {
                 alert("The page should transition to home.");
+                console.log("The page should transition to home.");
                 //document.getElementsByTagName("title")[0].innerHTML = 'Rover Control';
 
                 // Close the login modal dialog
                 document.getElementById('id01').style.display='none';
 
+                var parser = new DOMParser();
+                var htmlDocument = parser.parseFromString(indexPageRequest.responseText,'text/html');
+                var documentBody = htmlDocument.getElementById('document-body');
+
+                //console.log('indexPageRequest.responseText: ' + indexPageRequest.responseText);
+                console.log('indexPageRequest.responseText (document-body): ' + documentBody.innerHTML);
                 document.getElementById('document-body').innerHTML = indexPageRequest.responseText;
             };
             //indexPageRequest.open("GET","/main");
             //indexPageRequest.open("GET","/main?_=" + new Date().getTime());
-            indexPageRequest.open("GET","/index.html");
+            indexPageRequest.open("GET","/index.html?_=" + new Date().getTime());
             console.log('About to send a GET request.');
             indexPageRequest.send();
-            console.log('GET request sent.');
+            console.log('GET request sent.');*/
         }
 
         function onLoginClicked() {
