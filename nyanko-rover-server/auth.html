@@ -106,7 +106,7 @@
             }
 
             if(xhr.responseText) {
-                alert('xhr.responseText:'+xhr.responseText);
+                console.log('xhr.responseText:'+xhr.responseText);
             }
 
             if(xhr.responseText.length == 0) {
@@ -162,7 +162,7 @@
 
             //alert('onSubmit called.');
             let entered_text = document.getElementById('pw').value;
-            alert('entered text: '+entered_text)
+            console.log('entered text: '+entered_text);
             xhr = new XMLHttpRequest();
             xhr.onload = onAuthReponse;
             //xhr.open("GET","auth");
