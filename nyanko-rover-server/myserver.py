@@ -10,8 +10,11 @@ import inspect
 import threading
 import time
 import random
+import json
 
+# Third-party Python libraries
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
+import vcgencmd
 
 # Proprietary Python modules
 import cmdutil
@@ -31,6 +34,18 @@ video_stream = None
 # Stores entries like this: { 'sid': '123456' }
 # i.e. each element is a dictionary
 sesison_info_list = []
+
+def file_exists(pathname):
+  if not os.path.exists(pathname):
+    print('Path "{}" does not exist.'.format(pathname))
+    logging.debug('Path "{}" does not exist.'.format(pathname))
+    return False
+  elif not os.path.isfile(pathname):
+    print('Path "{}" is not a file.'.format(pathname))
+    logging.debug('Path "{}" is not a file.'.format(pathname))
+    return False
+  else:
+    return True
 
 def guess_script_file_directory():
   filename = inspect.getframeinfo(inspect.currentframe()).filename
@@ -87,7 +102,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     rootdir = guess_script_file_directory()
     try:
       print('self.path {}, thread {}'.format(self.path, threading.current_thread().ident))
-      print('cookie: {}'.format(self.headers.get('Cookie')))
+      print('🍪 cookie: {}'.format(self.headers.get('Cookie')))
 
       #logging.info('#HEADERS (as string): ',self.headers.as_string())
       #logging.info('#HEADERS (items): ',self.headers.items())
@@ -98,10 +113,12 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       # - 2 allows .js/.jpg/ files to be returned without session info (no way to request these with session info)
       #   whereas index.html and other API calls (motor controls, etc) require session info
       if self.validate_session_info(self.headers):
-          logging.debug('valid sid')
+          print('✓ valid sid')
+          logging.debug('✓ valid sid')
           pass
       elif self.path.startswith('/auth'):
-          logging.debug('auth path')
+          print('🔑 Authenticating.')
+          logging.debug('🔑 Authenticating.')
           # The user has sent a password
           if(self.is_password_valid(self.headers)):
 
@@ -136,6 +153,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
               return
 
       else:
+          print('login is required')
           logging.debug('login is required')
           self.return_login_page()
           return
@@ -147,8 +165,8 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       #   return
 
       if 'mjpg' in self.path:
-        print('mjpg in path')
-        logging.debug('mjpg in self.path')
+        print('📹 mjpg in path')
+        logging.debug('📹 mjpg in self.path')
 
       if self.path.startswith('/forward'):
         logging.debug('driving forward')
@@ -200,10 +218,21 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response_and_header('text/xml',len(encoded))
         #return xmltext
 
-      elif self.path == '/hw-info':
-        xml_text = '<?xml version="1.0" encoding="UTF-8"?>\n<info>' + 'nyanko' + '</info>'
-        encoded = xml_text.encode('utf-8')
-        self.send_response_and_header('text/xml',len(encoded))
+      elif self.path.startswith('/hw-status'):
+        print('Querying server hardware status.')
+        hw_status = {
+          "uptime": 0,
+          "temp": vcgencmd.measure_temp(),
+          "cpu_usage": 0,
+          "camera": {"supported": vcgencmd.get_camera('supported'), "detected": vcgencmd.get_camera('detected')},
+          "ip": '0.0.0.0',
+          "public_ip": '0.0.0.0'
+        }
+
+        #hw_status = '<?xml version="1.0" encoding="UTF-8"?>\n<info>' + 'nyanko' + '</info>'
+        text = json.dumps(hw_status)
+        encoded = text.encode('utf-8')
+        self.send_response_and_header('application/json',len(encoded))
         self.wfile.write(encoded)
         self.wfile.flush()
         return
@@ -212,8 +241,8 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         video_stream.start_streaming(self)
 
       else:
-        print('Delegating request to super class')
-        logging.info('Delegating request to super class')
+        print('Delegating request to super class (path: {})'.format(self.path))
+        logging.info('Delegating request to super class (path: {})'.format(self.path))
         super(NyankoRoverHTTPRequestHandler,self).do_GET()
 
 
@@ -279,11 +308,14 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     f.close()
 
   def return_login_page(self):
-    f = open('auth.html', 'rb')
-    fs = os.fstat(f.fileno())
-    self.send_response_and_header('text/html',fs[6])
-    self.copyfile(f, self.wfile)
-    f.close()
+    print('Returning login page.')
+    logging.debug('Returning login page.')
+    if not file_exists('auth.html'):
+      return
+    with open('auth.html', 'rb') as f:
+      fs = os.fstat(f.fileno())
+      self.send_response_and_header('text/html',fs[6])
+      self.copyfile(f, self.wfile)
 
 
 class NyankoRoverWebSocket(WebSocket):
