@@ -4,10 +4,12 @@ function parseXml(xmlStr) {
     return new window.DOMParser().parseFromString(xmlStr, "text/xml");
  }
 
-function initWebSocket(serverAddress) {
+function initWebSocket() {
     console.log("Connecting to a WebSocket server.");
     var wsPort = 9792;
-    var serverUrl = "ws://" + serverAddress + ":9792";// + toString(wsPort);
+    //var serverUrl = "ws://" + serverAddress + ":9792";// + toString(wsPort);
+    var serverUrl = "ws://" + window.location.hostname + ":9792";
+    console.log("ws url: " + serverUrl);
     myWebSocket = new WebSocket(serverUrl);
     myWebSocket.onopen = function(evt) { onWebSocketOpen(evt); };
     myWebSocket.onmessage = function(evt) { onWebSocketMessage(evt); };
@@ -56,9 +58,5 @@ function onServerAddressOrHostnameAcquired(evt) {
     initWebSocket(host);
 }
 
-var req = new XMLHttpRequest();
-req.open("GET","server_address");
-req.addEventListener("load",onServerAddressOrHostnameAcquired);
-req.send()
 
-//initWebSocket("localhost");
+initWebSocket();

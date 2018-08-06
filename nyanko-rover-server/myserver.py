@@ -190,33 +190,6 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       elif self.path.startswith('/take_photo'):
         print('Taking a photo')
         take_photo()
-      elif self.path.startswith('/server_address'):
-        print('server_address requested')
-        with open('myaddress.xml','w') as xmlfile:
-          xmlfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-          xmlfile.write('<nyanko>' + networktool.get_ip() + '</nyanko>')
-        f = open('myaddress.xml', 'rb')
-        self.send_response(200)
-        self.send_header("Content-type", 'text/xml')
-        fs = os.fstat(f.fileno())
-        self.send_header("Content-Length", str(fs[6]))
-        self.send_header("Last-Modified", self.date_time_string(fs.st_mtime))
-        self.end_headers()
-        self.copyfile(f, self.wfile)
-        f.close()
-        return
-
-        xmltext = '<?xml version="1.0" encoding="UTF-8"?><p>nyanko</p>'
-        encoded = xmltext.encode('utf-8')
-        # Always call self.wfile.write AFTER self.end_headers() otherwise responseText JS receives
-        # will have everything including Content-type and others as a single string.
-        self.wfile.write(encoded)
-        #html = b'<html><head>myhtml</head><body>myhtmlbody</body></html>'
-        #self.wfile.write(html)
-        #print('length: {}'.format(len(encoded)))
-        #self.send_response_and_header('text/html',len(html))
-        self.send_response_and_header('text/xml',len(encoded))
-        #return xmltext
 
       elif self.path.startswith('/hw-status'):
         print('Querying server hardware status.')
