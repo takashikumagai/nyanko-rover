@@ -44,30 +44,27 @@ function openDeubg() {
 
 }
 
-function updateHwStatus() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET','hw-status');
-    xhr.load = function() {
-        var j = xhr.responseText;
-        console.log(j);
-        //document.getDocumentById('soc-core-temp').innerHTML = j.temp;
-        //document.
-    }
-    xhr.send();
-}
-/*
-function updateCpuUsage() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET','cpuusage');
-    xhr.load = function() {
-        document.getDocumentById('cpu-usage').innertHTML = xhr.responseText;
-    }
-    xhr.send();
+var hwStatus = null;
+
+function updateHwStatusView() {
+    console.log('updateHwStatus response: ' + hwStatus.responseText) ;
+    let j = JSON.parse(hwStatus.responseText);
+    console.log(j);
+    document.getElementById('system-uptime').innerHTML = j.uptime;
+    document.getElementById('cpu-usage').innerHTML = j.cpu_usage;
+    document.getElementById('soc-core-temp').innerHTML = j.temp;
 }
 
-function updateRamInfo() {
+function updateHwStatus() {
+    console.log('updating HW status');
+    hwStatus = new XMLHttpRequest();
+    hwStatus.onload = updateHwStatusView;
+    hwStatus.onerror = function() {
+        console.log("Failed to update HW status");
+    }
+    hwStatus.open('GET','/hw-status?_=' + new Date().getTime());
+    hwStatus.send();
 }
-*/
 
 function onHwStatusLoaded() {
     console.log("onHwStatusLoaded()");
@@ -76,6 +73,8 @@ function onHwStatusLoaded() {
 function onHwStatusFailed() {
     console.log("onHwStatusFailed()");
 }
+
+setInterval(updateHwStatus,5000);
 
 
 //console.log('Setting window.onload function');
