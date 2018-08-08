@@ -5,6 +5,7 @@ import http.cookies
 import socketserver
 import sys
 import os
+import subprocess
 import logging
 import inspect
 import threading
@@ -14,6 +15,7 @@ import json
 
 # Third-party Python libraries
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
+import psutil
 import vcgencmd
 
 # Proprietary Python modules
@@ -72,6 +74,15 @@ def register_session_info(headers):
   print('session_info_list updated: ' + str(sesison_info_list))
   logging.info('session_info_list updated: ' + str(sesison_info_list))
   return sid
+
+# Returns a string representing the system uptime
+def get_uptime():
+  raw = subprocess.check_output('uptime').decode('utf8').replace(',','')
+  words = raw.split()
+  if 3 <= len(words):
+    return words[2]
+  else:
+    return '?'
 
 #Create custom HTTPRequestHandler class
 class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -194,16 +205,17 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       elif self.path.startswith('/hw-status'):
         print('Querying server hardware status.')
         hw_status = {
-          "uptime": 0,
+          "uptime": get_uptime(),
           "temp": vcgencmd.measure_temp(),
-          "cpu_usage": 0,
+          "cpu_usage": psutil.cpu_percent(),
           "camera": {"supported": vcgencmd.get_camera('supported'), "detected": vcgencmd.get_camera('detected')},
-          "ip": '0.0.0.0',
-          "public_ip": '0.0.0.0'
+          "ip": '0.1.2.3',
+          "public_ip": '4.5.6.7'
         }
 
-        #hw_status = '<?xml version="1.0" encoding="UTF-8"?>\n<info>' + 'nyanko' + '</info>'
         text = json.dumps(hw_status)
+        #text = '<?xml version="1.0" encoding="UTF-8"?>\n<abc>123</abc>'
+        print('hw_status: ' + text)
         encoded = text.encode('utf-8')
         self.send_response_and_header('application/json',len(encoded))
         self.wfile.write(encoded)
