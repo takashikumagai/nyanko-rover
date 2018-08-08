@@ -53,6 +53,9 @@ function updateHwStatusView() {
     document.getElementById('system-uptime').innerHTML = j.uptime;
     document.getElementById('cpu-usage').innerHTML = j.cpu_usage;
     document.getElementById('soc-core-temp').innerHTML = j.temp;
+    document.getElementById('camera').innerHTML
+    = 'Supported: ' + ((j.camera.supported == 1) ? 'Yes' : 'No')
+    + ', Detected: ' + ((j.camera.detected == 1) ? 'Yes' : 'No');
 }
 
 function updateHwStatus() {
