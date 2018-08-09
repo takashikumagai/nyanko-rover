@@ -94,10 +94,12 @@ __kCameraSrcs = ['supported', 'detected']
 
 def get_camera(src):
   output = __lookup('get_camera', [''], '')
-  cam = output.split(',')
+  cam = output.split()
   if src == 'supported':
-    return cam[0][cam[0].find('=') + 1:].strip()
+    pos = cam[0].find('=') + 1
+    return cam[0][pos:pos+1].strip()
   elif src == 'detected':
-    return cam[1][cam[1].find('=') + 1:].strip()
-  else
+    pos = cam[1].find('=') + 1
+    return cam[1][pos:pos+1].strip()
+  else:
     raise Exception('unknown arg \'{0}\''.format(src))
