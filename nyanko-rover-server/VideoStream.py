@@ -1,29 +1,9 @@
 #!/usr/bin/env python3
 
-import threading
 import logging
-import io
-#import picamera
+import platform
+import RPiCamera
 import TestImageCamera
-
-
-class StreamingOutput(object):
-
-    def __init__(self):
-        self.frame = None
-        self.buffer = io.BytesIO()
-        self.condition = threading.Condition()
-
-    def write(self, buf):
-        if buf.startswith(b'\xff\xd8'):
-            # New frame, copy the existing buffer's content and notify all
-            # clients it's available
-            self.buffer.truncate()
-            with self.condition:
-                self.frame = self.buffer.getvalue()
-                self.condition.notify_all()
-            self.buffer.seek(0)
-        return self.buffer.write(buf)
 
 
 class VideoStream:
@@ -33,9 +13,13 @@ class VideoStream:
         try:
             logging.info('Initializing camera')
             #self.camera = picamera.PiCamera(resolution=video_resolution, framerate=24)
-            self.camera = TestImageCamera.TestImageCamera()
-        except:
-            logging.info('Camera init failed.')
+            if platform.processor().find('arm') == 0:
+                logging.info('arm cpu: we assume that this is a pi.')
+                self.camera = RPiCamera.RPiCamera()
+            else:
+                self.camera = TestImageCamera.TestImageCamera()
+        except Exception as e:
+            logging.info('Camera init failed: ' + str(e))
             return
 
         #Uncomment the next line to change your Pi's Camera rotation (in degrees)
