@@ -3,7 +3,8 @@
 import threading
 import logging
 import io
-import picamera
+#import picamera
+import TestImageCamera
 
 
 class StreamingOutput(object):
@@ -31,7 +32,8 @@ class VideoStream:
 
         try:
             logging.info('Initializing camera')
-            self.camera = picamera.PiCamera(resolution=video_resolution, framerate=24)
+            #self.camera = picamera.PiCamera(resolution=video_resolution, framerate=24)
+            self.camera = TestImageCamera.TestImageCamera()
         except:
             logging.info('Camera init failed.')
             return
@@ -41,16 +43,17 @@ class VideoStream:
 
 
         logging.info('Setting up streaming output')
-        self.streaming_output = StreamingOutput()
+        #self.streaming_output = StreamingOutput()
 
         logging.info('starting the recording')
-        self.camera.start_recording(self.streaming_output, format='mjpeg')
+        #self.camera.start_recording(self.streaming_output, format='mjpeg')
 
-        self.stop_streaming = False
+        #self.stop_streaming = False
 
     def stop_recording(self):
-        if self.camera != None:
-            self.camera.stop_recording()
+        pass
+        #if self.camera != None:
+        #    self.camera.stop_recording()
 
     def start_streaming(self,http_request_handler):
 
@@ -68,9 +71,10 @@ class VideoStream:
         http_request_handler.end_headers()
         try:
           while True:#self.stop_streaming == False:
-            with self.streaming_output.condition:
-              self.streaming_output.condition.wait()
-              frame = self.streaming_output.frame
+            #with self.streaming_output.condition:
+            #  self.streaming_output.condition.wait()
+            #  frame = self.camera.get_frame()
+            frame = self.camera.get_frame()
             http_request_handler.wfile.write(b'--FRAME\r\n')
             http_request_handler.send_header('Content-Type', 'image/jpeg')
             http_request_handler.send_header('Content-Length', len(frame))

@@ -2,5 +2,4 @@
 *.log
 server_ip_address.txt
 nyanko-rover-server/motor_control.py
-nyanko-rover-server/VideoStream.py
 nyanko-rover-server/vcgencmd.py
