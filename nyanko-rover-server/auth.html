@@ -53,6 +53,16 @@
             color: red;
             cursor: pointer;
         }
+
+        #pw {
+            width: 240px;
+            height: 40px;
+            font-size: 28px;
+        }
+
+        #login-button {
+            font-size: 28px;
+        }
         
     </style>
     <title>Authentication Required</title>
@@ -65,7 +75,7 @@
         <!--span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span-->
         
         <!-- Modal Content -->
-        <form class="modal-content">
+        <div class="modal-content">
 
         <div class="container">
             <div class="modal-element">
@@ -75,7 +85,7 @@
                 <input id="pw" type="password" placeholder="Enter Password" name="psw" required autofocus>
             </div>
             <div class="modal-element">
-                <button type="button" onclick="onLoginClicked()">Login to control page</button>
+                <button id="login-button" type="button" onclick="onLoginClicked()">Login</button>
             </div>
             <div>
                 <label>
@@ -88,10 +98,22 @@
                 <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
                 <span class="psw">Forgot <a href="#">password?</a></span>
             </div-->
-        </form>
+        </div>
         </div>
 
     <script>
+        //alert('loading js')
+        // Trigger a click of the login button when user presses the enter key in the password field.
+        document.getElementById("pw").addEventListener("keyup", function(event) {
+            //alert('input field keyup');
+            event.preventDefault();
+
+            // Number 13 is the 'Enter' key on the keyboard
+            if(event.keyCode === 13) {
+                //alert('input field enter keyup');   
+                document.getElementById("login-button").click();
+            }
+        });
 
         function parseMyXml(xmlStr) {
             return new window.DOMParser().parseFromString(xmlStr, "text/xml");
@@ -105,7 +127,7 @@
             
             if(xhr == null) {
                 // The server returned an empty string; this means that the authentication failed.
-                alert('null xhr');
+                console.log('null xhr');
                 window.location = "auth_failed.html";
             }
 
@@ -114,7 +136,7 @@
             }
 
             if(xhr.responseText.length == 0) {
-                alert('zero length response text');
+                console.log('zero length response text');
                 window.location = "auth_failed.html";
             }
 
@@ -173,7 +195,7 @@
 
         function onLoginClicked() {
 
-            //alert('onSubmit called.');
+            console.log('onLoginClicked');
             let entered_text = document.getElementById('pw').value;
             console.log('entered text: '+entered_text);
             xhr = new XMLHttpRequest();
