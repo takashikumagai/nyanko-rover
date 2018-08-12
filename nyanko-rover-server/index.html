@@ -11,6 +11,7 @@
     <script src="nr_gamepad.js"></script>
     <link rel="stylesheet" href="css/side_navigation_menu.css">
     <link rel="stylesheet" href="css/master.css">
+    <link rel="stylesheet" href="css/modal.css">
   </head>
   <body>
 
@@ -22,6 +23,7 @@
       <a href="javascript:void(0)" onclick="openControlTest()">Control Test</a>
       <a href="javascript:void(0)" onclick="openStatus()">Status</a>
       <a href="javascript:void(0)" onclick="openDeubg()">Debug</a>
+      <a href="javascript:void(0)" onclick="openShutdown()">Shutdown/Restart</a>
     </div>
 
     <div id="top">
@@ -78,6 +80,13 @@
         </div>
           <div id="gamepad_axes">
         </div>
+      </div>
+    </div>
+
+    <div id="shutdown-modal" class="modal" onclick="closeShutdown()">
+      <div class="modal-content">
+        <button class="powerbutton">Reboot</button>
+        <button class="powerbutton">Shut Down</button>
       </div>
     </div>
 

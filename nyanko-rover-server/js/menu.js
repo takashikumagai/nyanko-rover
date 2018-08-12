@@ -14,11 +14,16 @@ function getDebug() {
     return document.getElementById('debug-page');
 }
 
+function getShutdown() {
+    return document.getElementById('shutdown-modal');
+}
+
 function openLiveFeedAndControl() {
     getLiveFeedAndControl().style.display = 'block';
     getControlTest().style.display = 'none';
     getStatus().style.display = 'none';
     getDebug().style.display = 'none';
+    getShutdown().style.display = 'none';
 }
 
 function openControlTest() {
@@ -26,6 +31,7 @@ function openControlTest() {
     getControlTest().style.display = 'block';
     getStatus().style.display = 'none';
     getDebug().style.display = 'none';
+    getShutdown().style.display = 'none';
 }
 
 function openStatus() {
@@ -33,7 +39,7 @@ function openStatus() {
     getControlTest().style.display = 'none';
     getStatus().style.display = 'block';
     getDebug().style.display = 'none';
-
+    getShutdown().style.display = 'none';
 }
 
 function openDeubg() {
@@ -41,7 +47,23 @@ function openDeubg() {
     getControlTest().style.display = 'none';
     getStatus().style.display = 'none';
     getDebug().style.display = 'block';
+    getShutdown().style.display = 'none';
+}
 
+function openShutdown() {
+    getLiveFeedAndControl().style.display = 'none';
+    getControlTest().style.display = 'none';
+    getStatus().style.display = 'none';
+    getDebug().style.display = 'none';
+    getShutdown().style.display = 'block';
+}
+
+function closeShutdown() {
+    getLiveFeedAndControl().style.display = 'block';
+    getControlTest().style.display = 'none';
+    getStatus().style.display = 'none';
+    getDebug().style.display = 'none';
+    getShutdown().style.display = 'none';
 }
 
 var hwStatus = null;

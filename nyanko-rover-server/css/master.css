@@ -47,6 +47,22 @@ body {
     left: 50%;
 }
 
+#shutdown-modal {
+    display: none;
+}
+
+.powerbutton {
+    display: inline-block;
+    background-color: dimgray;
+    margin: 25px;
+    padding: 20px;
+    height: 100px;
+    font-size: 36px;
+    border: 1px solid gray;
+
+    vertical-align: middle;
+}
+
 .motor_control {
     text-align: center;
     padding: 6px;
