@@ -67,10 +67,12 @@ def generate_random_pin():
   return str(random.randint(0,999999)).zfill(6)
 
 # Returns a new session ID
-def register_session_info(headers):
+def register_session_info(headers,user_type):
   global sesison_info_list
   sid = str(random.randint(0,999999999999)).zfill(12)
-  sesison_info_list.append({'user-agent':headers.get('User-Agent'), 'sid':sid})
+  print('New sid: {}'.format(sid))
+  logging.debug('New sid: {}'.format(sid))
+  sesison_info_list.append({'sid':sid, 'user-type':user_type, 'user-agent':headers.get('User-Agent')})
   print('session_info_list updated: ' + str(sesison_info_list))
   logging.info('session_info_list updated: ' + str(sesison_info_list))
   return sid
@@ -133,26 +135,12 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
           
           # The user has sent a password
 
-          if(self.is_password_valid(self.headers)):
+          registered = self.register_client(self.headers)
 
-              # Authentication succeeded
-              print('Issuing a session ID')
-              logging.info('Issuing a session ID')
-              # Hands out a session ID to the client
-              sid = register_session_info(self.headers)
-
-              xml_text = '<?xml version="1.0" encoding="UTF-8"?>\n<sid>' + sid + '</sid>'
-              encoded = xml_text.encode('utf-8')
-              self.send_response_and_header('text/xml',len(encoded))
-              self.wfile.write(encoded)
-              self.wfile.flush()
-              logging.debug(str(self))
-              return
-
-          else:
-              logging.debug('authentication failed. Returning an empty string instead of a session ID')
-              self.send_response_and_header('text/plain',0)
-              return
+          if not registered:
+            logging.debug('authentication failed. Returning an empty string instead of a session ID')
+            self.send_response_and_header('text/plain',0)
+          return
 
       else:
           print('login is required')
@@ -284,24 +272,17 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       logging.info("nrsid not found in header")
       return False
 
-  def is_password_valid(self,headers):
+  def get_password_from_header(self,headers):
     result = [item for item in headers.items() if item[0] == 'my-password']
-    print(headers.items())
-    logging.debug(str(headers.items()))
-    print('search result:', result)
-    logging.debug('search result: ' + str(result))
+    print('searched pw from header. Result: {}'.format(str(result)))
+    logging.debug('searched pw from header. Result: {}'.format(str(result)))
+    print('pw: {}'.format(result[0][1]))
+    logging.debug('pw: {}'.format(result[0][1]))
     if len(result) == 1:
-      if result[0][1] == 'abc':
-        return True
-      else:
-        logging.debug('pw: ' + result[0][1])
-        print('pw: ' + result[0][1])
-        return False
+      return result[0][1]
     else:
-      logging.debug('len(result)' + str(len(result)))
-      print('len(result)' + str(len(result)))
-      return False
-  
+      return None
+
   def return_index_html_page(self):
     f = open('index.html', 'rb')
     fs = os.fstat(f.fileno())
@@ -319,7 +300,45 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       self.send_response_and_header('text/html',fs[6])
       self.copyfile(f, self.wfile)
 
+  def is_valid_admin_password(self,pw):
+    if pw == 'abc':
+      return True
+    else:
+      return False
 
+  def is_valid_guest_password(self,pw):
+    return False
+
+  def register_client(self,headers):
+    print('register_client: {}'.format(str(headers.items())))
+    logging.debug('register_client: {}'.format(str(headers.items())))
+
+    received_password = self.get_password_from_header(headers) # The password client sent to the server
+    if received_password is None:
+      return False
+
+    sid = ''
+    if self.is_valid_admin_password(received_password):
+      # Register the user as the admin
+      sid = register_session_info(headers,'admin')
+    elif self.is_valid_guest_password(received_password):
+      sid = register_session_info(headers,'guest')
+    else:
+      return False
+    
+    if 0 < len(sid):
+      # Authentication succeeded
+      print('Returning a session ID')
+      logging.info('Returning a session ID')
+      # Hands out a session ID to the client
+      xml_text = '<?xml version="1.0" encoding="UTF-8"?>\n<sid>{}</sid>'.format(sid)
+      encoded = xml_text.encode('utf-8')
+      self.send_response_and_header('text/xml',len(encoded))
+      self.wfile.write(encoded)
+      self.wfile.flush()
+      logging.debug(str(self))
+      return True
+    
 class NyankoRoverWebSocket(WebSocket):
 
     #def __init__(self):
