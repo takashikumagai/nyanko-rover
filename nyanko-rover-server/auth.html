@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0">
+    <meta http-equiv="cache-control" content="no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, post-check=0, pre-check=0">
     <!--
         Stick with internal CSS because before the authentication succeeds any resource request will fail
     -->
@@ -102,6 +102,35 @@
         </div>
 
     <script>
+
+        // When the user tries to open the top page URL - domain or domain/index.html, the browser
+        // responds with this page instead of index.html because of the way the cache works,
+        // so if the session id is already present in the cookie directly proceed to index.html
+        if( getCookie('nrsid') != null ) {
+            window.location.assign('/index.html?_=' + new Date().getTime());
+        }
+
+        function getCookie(name) {
+            var dc = document.cookie;
+            var prefix = name + "=";
+            var begin = dc.indexOf("; " + prefix);
+            if (begin == -1) {
+                begin = dc.indexOf(prefix);
+                if (begin != 0) return null;
+            }
+            else
+            {
+                begin += 2;
+                var end = document.cookie.indexOf(";", begin);
+                if (end == -1) {
+                end = dc.length;
+                }
+            }
+            // because unescape has been deprecated, replaced with decodeURI
+            //return unescape(dc.substring(begin + prefix.length, end));
+            return decodeURI(dc.substring(begin + prefix.length, end));
+        } 
+        
         //alert('loading js')
         // Trigger a click of the login button when user presses the enter key in the password field.
         document.getElementById("pw").addEventListener("keyup", function(event) {
@@ -153,6 +182,11 @@
             let sidXml = parseMyXml(xhr.responseText);
             let nodes = sidXml.getElementsByTagName('sid');
             if(nodes.length == 0) {
+                let r = sidXml.getElementsByTagName('r');
+                if(0 < r.length && r[0].innerHTML == 'already-authenticated') {
+                    window.location.assign('/index.html?_=' + new Date().getTime());
+                    return;
+                }
                 console.log('sid node not detected.');
                 window.location = "auth_failed.html";
             }

@@ -130,7 +130,9 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       elif self.path.startswith('/auth'):
           print('🔑 Authenticating.')
           logging.debug('🔑 Authenticating.')
+          
           # The user has sent a password
+
           if(self.is_password_valid(self.headers)):
 
               # Authentication succeeded
@@ -138,17 +140,6 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
               logging.info('Issuing a session ID')
               # Hands out a session ID to the client
               sid = register_session_info(self.headers)
-
-              # Add a customer header representing
-              #self.send_header('Nyanko-Rover-Session-ID',sid)
-
-              #self.send_empty_response_and_header()
-
-              # f = open('blank.html', 'rb')
-              # fs = os.fstat(f.fileno())
-              # self.send_response_and_header('text/html',fs[6])
-              # self.copyfile(f, self.wfile)
-              # f.close()
 
               xml_text = '<?xml version="1.0" encoding="UTF-8"?>\n<sid>' + sid + '</sid>'
               encoded = xml_text.encode('utf-8')
@@ -179,6 +170,18 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         print('📹 mjpg in path')
         logging.debug('📹 mjpg in self.path')
 
+      if self.path.startswith('/auth'):
+        client_sid = get_sid_from_cookie(self.headers)
+        print('Authentication request from a client which already has an sid: {}'.format(client_sid))
+        logging.debug('Authentication request from a client which already has an sid: {}'.format(client_sid))
+
+        xml_text = '<?xml version="1.0" encoding="UTF-8"?>\n<r>already-authenticated</r>'
+        encoded = xml_text.encode('utf-8')
+        self.send_response_and_header('text/xml',len(encoded))
+        self.wfile.write(encoded)
+        self.wfile.flush()
+        logging.debug('response xml: {}'.format(str(self)))
+        return
       if self.path.startswith('/forward'):
         logging.debug('driving forward')
         motor_control.start_motor_forward(10)
@@ -235,6 +238,20 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       motor_control.stop_motor()
       self.send_error(404, 'file not found')
 
+  def get_sid_from_cookie(self,headers):
+    cookie = headers.get('Cookie')
+    if cookie == None:
+      return None
+
+    print('myCookie: {}'.format(str(cookie)))
+    sc = http.cookies.SimpleCookie()
+    sc.load(str(cookie))
+    if 'nrsid' in sc:
+      return sr['nrsid'].value
+    else:
+      print('sid not found in cookie')
+      return None
+
   def validate_session_info(self,headers):
     global sesison_info_list
 
@@ -252,8 +269,8 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       client_sid = sc['nrsid'].value
       user_agent = [item for item in headers.items() if item[0] == 'User-Agent']
       user_agent_value = user_agent[0][1]
-      session_info = [item for item in sesison_info_list if user_agent_value == item['user-agent']]
-      if 0 < len(session_info) and session_info[0]['sid'] == client_sid:
+      session_info = [item for item in sesison_info_list if client_sid == item['sid']]
+      if 0 < len(session_info) and session_info[0]['user-agent'] == user_agent_value:
         print("session info validated: ", str(session_info[0]))
         logging.info("session info validated: " + str(session_info[0]))
         return True
