@@ -23,6 +23,7 @@
       <a href="javascript:void(0)" onclick="openControlTest()">Control Test</a>
       <a href="javascript:void(0)" onclick="openStatus()">Status</a>
       <a href="javascript:void(0)" onclick="openDeubg()">Debug</a>
+      <a href="javascript:void(0)" onclick="openPinMenu()">PIN (Guest)</a>
       <a href="javascript:void(0)" onclick="openShutdown()">Shutdown/Restart</a>
     </div>
 
@@ -90,6 +91,14 @@
       </div>
     </div>
 
+    <div id="pin-modal" class="modal" onclick="closePinMenu()">
+      <div id="pin-modal-content" class="modal-content">
+        <span id="guest-pin"></span>
+      </div>
     </div>
+
+    </div>
+
+    <!--script src='js/on_page_loaded.js'></script-->
   </body>
 </html>

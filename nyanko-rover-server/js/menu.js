@@ -14,6 +14,10 @@ function getDebug() {
     return document.getElementById('debug-page');
 }
 
+function getPinMenu() {
+    return document.getElementById('pin-modal');
+}
+
 function getShutdown() {
     return document.getElementById('shutdown-modal');
 }
@@ -24,6 +28,7 @@ function openLiveFeedAndControl() {
     getStatus().style.display = 'none';
     getDebug().style.display = 'none';
     getShutdown().style.display = 'none';
+    getPinMenu().style.display = 'none';
 }
 
 function openControlTest() {
@@ -32,6 +37,7 @@ function openControlTest() {
     getStatus().style.display = 'none';
     getDebug().style.display = 'none';
     getShutdown().style.display = 'none';
+    getPinMenu().style.display = 'none';
 }
 
 function openStatus() {
@@ -40,6 +46,7 @@ function openStatus() {
     getStatus().style.display = 'block';
     getDebug().style.display = 'none';
     getShutdown().style.display = 'none';
+    getPinMenu().style.display = 'none';
 }
 
 function openDeubg() {
@@ -48,6 +55,38 @@ function openDeubg() {
     getStatus().style.display = 'none';
     getDebug().style.display = 'block';
     getShutdown().style.display = 'none';
+    getPinMenu().style.display = 'none';
+}
+
+function updatePin() {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+        console.log('xhr pin response text: '+xhr.responseText);
+        let r = JSON.parse(xhr.responseText);
+        document.getElementById("guest-pin").innerHTML = r.pin;
+    }
+    xhr.onerror = function() {
+        console.log("Not updating pin");
+    }
+    xhr.open('GET','/pin?_=' + new Date().getTime());
+    xhr.send();
+}
+
+function openPinMenu() {
+    getLiveFeedAndControl().style.display = 'none';
+    getControlTest().style.display = 'none';
+    getStatus().style.display = 'none';
+    getDebug().style.display = 'none';
+    getShutdown().style.display = 'none';
+    getPinMenu().style.display = 'block';
+
+    updatePin();
+
+    //let x = document.getElementById("pin-modal-content::before");
+}
+
+function closePinMenu() {
+    openLiveFeedAndControl();
 }
 
 function openShutdown() {
@@ -56,6 +95,7 @@ function openShutdown() {
     getStatus().style.display = 'none';
     getDebug().style.display = 'none';
     getShutdown().style.display = 'block';
+    getPinMenu().style.display = 'none';
 }
 
 function closeShutdown() {
@@ -64,6 +104,7 @@ function closeShutdown() {
     getStatus().style.display = 'none';
     getDebug().style.display = 'none';
     getShutdown().style.display = 'none';
+    getPinMenu().style.display = 'none';
 }
 
 var hwStatus = null;
@@ -99,8 +140,11 @@ function onHwStatusFailed() {
     console.log("onHwStatusFailed()");
 }
 
-setInterval(updateHwStatus,5000);
+//setInterval(updateHwStatus,5000);
 
+function parseMyXml(xmlStr) {
+    return new window.DOMParser().parseFromString(xmlStr, "text/xml");
+}
 
 //console.log('Setting window.onload function');
 //window.onload = function() {

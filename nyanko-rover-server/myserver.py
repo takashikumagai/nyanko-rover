@@ -37,6 +37,8 @@ video_stream = None
 # i.e. each element is a dictionary
 sesison_info_list = []
 
+guest_pin = ''
+
 def file_exists(pathname):
   if not os.path.exists(pathname):
     print('Path "{}" does not exist.'.format(pathname))
@@ -192,6 +194,20 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       elif self.path.startswith('/take_photo'):
         print('Taking a photo')
         take_photo()
+      elif self.path.startswith('/pin'):
+
+        #if not self.is_admin(self.headers):
+        #  return
+
+        pin = {"pin":self.get_guest_password()}
+        text = json.dumps(pin)
+        print('Returning pin info: {}'.format(str(text)))
+        logging.debug('Returning pin info: {}'.format(str(text)))
+        encoded = text.encode('utf-8')
+        self.send_response_and_header('application/json',len(encoded))
+        self.wfile.write(encoded)
+        self.wfile.flush()
+        return
 
       elif self.path.startswith('/hw-status'):
         print('Querying server hardware status.')
@@ -306,8 +322,22 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     else:
       return False
 
+  def get_guest_password(self):
+    global guest_pin
+    if len(guest_pin) == 0:
+      guest_pin = generate_random_pin()
+    return guest_pin
+
   def is_valid_guest_password(self,pw):
-    return False
+    if pw == get_guest_password():
+
+      # A user was authenticated with the PIN
+      # Change the PIN so that guests need to login with a different PIN
+      guest_pin = generate_random_pin()
+
+      return True
+    else:
+      return False
 
   def register_client(self,headers):
     print('register_client: {}'.format(str(headers.items())))
