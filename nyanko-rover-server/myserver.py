@@ -209,6 +209,13 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.flush()
         return
 
+      elif self.path.startswith('/shutdown'):
+        print('shutdown request received')
+        #subprocess.check_output('sudo shutdown now')
+        pass
+      elif self.path.startswith('/reboot'):
+        print('reboot request received')
+        pass
       elif self.path.startswith('/hw-status'):
         print('Querying server hardware status.')
         hw_status = {
