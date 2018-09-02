@@ -25,29 +25,29 @@ class V4L2Camera:
         self.video.queue_all_buffers()
 
         print('(v4l2) starting video capture')
-
+    
+    def start_capture(self):
         self.video.start()
+
+    def stop_capture(self):
+        self.video.close()
 
     def get_frame(self):
 
         # Wait until the video is ready for reading
         select.select((self.video,),(),())
 
-        frame = self.video.read_and_queue()
+        image_data = self.video.read_and_queue()
 
-        print('image data size: {}'.format(len(frame)))
-        print('(v4l2) camera resolution: {} x {}'.format(self.size_x,self.size_y))
-        # return frame
+        #print('image data size: {}'.format(len(image_data)))
+        #print('(v4l2) camera resolution: {} x {}'.format(self.size_x,self.size_y))
 
-        image = Image.frombytes('RGB',(self.size_x,self.size_y),frame)
-        print('image created from rgb bytes')
-        contents = ''
+        image = Image.frombytes('RGB',(self.size_x,self.size_y),image_data)
+        #print('image created from rgb bytes')
+        frame = ''
         with io.BytesIO() as output:
-            print('saving image to memory')
+            #print('saving image to memory')
             image.save(output, format='JPEG')
-            contents = output.getvalue()
-        print('frame data size: {})'.format(len(contents)))
-        return contents
-
-    def stop_capture(self):
-        self.video.close()
+            frame = output.getvalue()
+        #print('frame data size: {})'.format(len(contents)))
+        return frame
