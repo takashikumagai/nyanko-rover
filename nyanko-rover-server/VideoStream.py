@@ -4,22 +4,23 @@ import logging
 import platform
 import RPiCamera
 import TestImageCamera
+import V4L2Camera
 
 
 class VideoStream:
 
-    def __init__(self,video_resolution='640x480'):
+    def __init__(self,camera_device,video_resolution='640x480'):
 
         try:
             logging.info('Initializing camera')
-            #self.camera = picamera.PiCamera(resolution=video_resolution, framerate=24)
-            if platform.processor().find('arm') == 0:
-                logging.info('arm cpu: we assume that this is a pi.')
+            if camera_device == 'picamera':
                 self.camera = RPiCamera.RPiCamera()
-            else:
+            elif camera_device == 'stub':
                 self.camera = TestImageCamera.TestImageCamera()
+            else:
+                self.camera = V4L2Camera.V4L2Camera(camera_device)
         except Exception as e:
-            logging.info('Camera init failed: ' + str(e))
+            logging.info('Camera init failed - device: {}, exception: {}'.format(camera_device,e))
             return
 
         #Uncomment the next line to change your Pi's Camera rotation (in degrees)
@@ -35,11 +36,14 @@ class VideoStream:
         #self.stop_streaming = False
 
     def stop_recording(self):
+        self.camera.stop_capture()
         pass
         #if self.camera != None:
         #    self.camera.stop_recording()
 
     def start_streaming(self,http_request_handler):
+
+        self.camera.start_capture()
 
         if self.camera == None:
             logging.info('camera not available')
