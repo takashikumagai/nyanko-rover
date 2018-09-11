@@ -10,6 +10,7 @@ class TestImageCamera:
     self.frames = [self.read_file('sample_images/'+f+'.jpg') for f in ['img1','img2','img3']]
 
   def get_frame(self):
+    time.sleep(0.05)
     return self.frames[ int(time.clock()) % 3 ]
 
 if __name__ == '__main__':
