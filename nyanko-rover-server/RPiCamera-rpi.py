@@ -17,6 +17,7 @@ class StreamingOutput(object):
             # clients it's available
             self.buffer.truncate()
             with self.condition:
+                # set the entire contents of the buffer (bytes) to frame
                 self.frame = self.buffer.getvalue()
                 self.condition.notify_all()
             self.buffer.seek(0)
