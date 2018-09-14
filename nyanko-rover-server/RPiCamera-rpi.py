@@ -41,6 +41,12 @@ class RPiCamera:
 
     self.stop_streaming = False
 
+  def stop_capture(self):
+    self.pi_camera.stop_recording()
+
+  def close(self):
+    pass
+
   def get_frame(self):
     with self.streaming_output.condition:
       self.streaming_output.condition.wait()
