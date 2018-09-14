@@ -134,7 +134,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       elif self.path.startswith('/auth'):
           print('🔑 Authenticating.')
           logging.debug('🔑 Authenticating.')
-          
+
           # The user has sent a password
 
           registered = self.register_client(self.headers)
@@ -238,6 +238,10 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
       elif self.path == '/stream.mjpg':
         video_stream.start_streaming(self)
+
+      elif self.path.startswith('/stream?'):
+        op = self.path[len('/stream?')]
+        control_stream(video_stream,op)
 
       else:
         print('Delegating request to super class (path: {})'.format(self.path))
@@ -362,7 +366,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       sid = register_session_info(headers,'guest')
     else:
       return False
-    
+
     if 0 < len(sid):
       # Authentication succeeded
       print('Returning a session ID')
@@ -375,7 +379,18 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       self.wfile.flush()
       logging.debug(str(self))
       return True
-    
+
+  def control_stream(video_stream,op):
+
+    if op == 'close':
+      video_stream.close()
+    else:
+      print('Unsupported operation: {}'.format(op))
+    ##elif op == 'start':
+    ##  video_stream.start_streaming()
+    ##elif op == 'stop':
+    ##  video_stream.stop_recording()
+
 class NyankoRoverWebSocket(WebSocket):
 
     #def __init__(self):
@@ -406,7 +421,7 @@ class NyankoRoverWebSocket(WebSocket):
 
         if self.network_status_reporter != None:
             self.network_status_reporter.stop()
-        
+
 
 
 class StreamingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
