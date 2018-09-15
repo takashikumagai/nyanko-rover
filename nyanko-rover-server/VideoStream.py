@@ -36,6 +36,10 @@ class VideoStream:
     # Gives the camera device chance to do any init/settings before starting the thread loop
     # the client calls start_streaming() after this to initiate the streaming thread.
     def start_capture(self):
+
+        if self.camera is None:
+            return
+
         self.is_capture_on = True
         self.camera.start_capture()
 
