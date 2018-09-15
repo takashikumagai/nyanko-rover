@@ -6,6 +6,7 @@
     <title>HAMB Rover</title>
     <script src="js/side_navigation_menu.js"></script>
     <script src="js/menu.js"></script>
+    <script src="js/live_streaming.js"></script>
     <script src="nr_websocket.js"></script>
     <script src="nr_rover_control.js"></script>
     <script src="nr_gamepad.js"></script>
@@ -20,6 +21,7 @@
     <div id="mysidenav" class="sidenav">
       <a href="javascript:void(0)" class="closebtn" onclick="closeSideNavMenu()">&times;</a>
       <a href="javascript:void(0)" onclick="openLiveFeedAndControl()">Live Feed + Control</a>
+      <a href="javascript:void(0)" onclick="open360LiveFeedAndControl()">360 Camera</a>
       <a href="javascript:void(0)" onclick="openControlTest()">Control Test</a>
       <a href="javascript:void(0)" onclick="openStatus()">Status</a>
       <a href="javascript:void(0)" onclick="openDeubg()">Debug</a>
@@ -33,6 +35,10 @@
     </div>
 
     <div id="live-feed-and-control-page">
+    </div>
+
+    <div id="live-feed-360-page">
+        <img src="images/bg.jpg" />
     </div>
 
     <!-- Status -->
@@ -70,6 +76,15 @@
     <div><button class="photo_shoot_button" type="button" onclick="takePhoto()">TAKE A PHOTO</button></div>
     <hr-->
 
+    <!-- 360 Camera View -->
+    <div id="spherical-scene" onmousedown="onMouseDown(event)" onmouseup="onMouseUp(event)" onmousemove="onMouseMove(event)">
+      <!-- we draw mjpg onto this canvas and use the canvas as the texture -->
+      <canvas id="2d" width="512" height="512" style="display: none"></canvas>
+
+      <!-- This one is for rending 3D scene -->
+      <canvas id="3d" width="1000px" height="800px"></canvas>
+    </div>
+
     <!-- Debug -->
     <div id="debug-page">
       <div id="gamepad_info">
@@ -97,8 +112,15 @@
       </div>
     </div>
 
+    <!-- display button at the bottom center of the page -->
+    <div id="toggle-cameras" onclick="toggleCameras()">
+      CAM
+    </div>
+
     </div>
 
     <!--script src='js/on_page_loaded.js'></script-->
+		<script src="js/three.min.js"></script>
+    <script src='js/vr.js'></script>
   </body>
 </html>
