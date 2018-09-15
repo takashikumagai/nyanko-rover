@@ -33,6 +33,9 @@ web_server_thread = None
 websocket_server_thread = None
 video_stream = None
 
+# Miscellaneous parameters
+server_params = {}
+
 # Stores entries like this: { 'sid': '123456' }
 # i.e. each element is a dictionary
 sesison_info_list = []
@@ -113,6 +116,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
   def do_GET(self):
 
     global video_stream
+    global video_stream_360
 
     rootdir = guess_script_file_directory()
     try:
@@ -239,10 +243,27 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       elif self.path == '/stream.mjpg':
         video_stream.start_streaming(self)
 
-      elif self.path.startswith('/stream?'):
-        op = self.path[len('/stream?')]
-        control_stream(video_stream,op)
+      elif self.path == '/stream360.mjpg':
+        video_stream_360.start_streaming(self)
 
+      elif self.path.startswith('/stream?'):
+        op = self.path[len('/stream?'):]
+        self.control_stream(video_stream,op)
+        encoded = json.dumps({"nyanko":0}).encode('utf-8')
+        self.send_response_and_header('application/json',len(encoded))
+        self.wfile.write(encoded)
+        self.wfile.flush()
+        return
+
+      elif self.path.startswith('/stream360?'):
+        op = self.path[len('/stream360?'):]
+        self.control_stream(video_stream_360,op)
+        encoded = json.dumps({"nyanko":0}).encode('utf-8')
+        self.send_response_and_header('application/json',len(encoded))
+        self.wfile.write(encoded)
+        self.wfile.flush()
+        return
+  
       else:
         print('Delegating request to super class (path: {})'.format(self.path))
         logging.info('Delegating request to super class (path: {})'.format(self.path))
@@ -365,6 +386,8 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     elif self.is_valid_guest_password(received_password):
       sid = register_session_info(headers,'guest')
     else:
+      print('Invalid password: {}'.format(received_password))
+      logging.debug('Invalid password: {}'.format(received_password))
       return False
 
     if 0 < len(sid):
@@ -380,7 +403,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       logging.debug(str(self))
       return True
 
-  def control_stream(video_stream,op):
+  def control_stream(self,video_stream,op):
 
     if op == 'close':
       video_stream.close()
@@ -436,14 +459,20 @@ def start():
   global httpd
   global ws_server
   global video_stream
+  global video_stream_360
   global motor_controller_thread
   global web_server_thread
   global websocket_server_thread
+  global server_params
 
   log_format = '%(asctime)-15s %(thread)d %(message)s'
   logging.basicConfig(filename='nyankoroverserver.log', level=logging.DEBUG, format=log_format)
 
-  video_stream = VideoStream.VideoStream()
+  with open('server_params.json','r') as f:
+    server_params = json.load(f)
+
+  video_stream = VideoStream.VideoStream(server_params['front_camera'])
+  video_stream_360 = VideoStream.VideoStream('/dev/v4l/by-id/usb-Arashi_Vision_Insta360_Air-video-index0')
 
   # try:
   #   address = ('', 8000)
@@ -485,6 +514,7 @@ def run():
   global httpd
   global ws_server
   global video_stream
+  global video_stream_360
   global motor_controller_thread
   global web_server_thread
   global websocket_server_thread
@@ -531,7 +561,7 @@ def run():
       pass
 
     logging.info('Stopping the camera recording...')
-    video_stream.stop_recording()
+    video_stream.stop_capture()
     #motor_control.cleanup()
 
 if __name__ == '__main__':
