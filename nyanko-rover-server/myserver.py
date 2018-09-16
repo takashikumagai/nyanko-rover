@@ -128,11 +128,16 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
           print('🔑 Authenticating.')
           logging.debug('🔑 Authenticating.')
 
-          # The user has sent a password
+          # SID was not found in the cookie
+          # If this is a valid auth request, the header should contain as password
 
           registered = self.register_client(self.headers)
 
-          if not registered:
+          if registered:
+            # Authenticated; response was set in register_client() so we just return now
+            return
+          else:
+            # Either the password was wrong or there was not password in the header
             logging.debug('authentication failed. Returning an empty string instead of a session ID')
             self.send_response_and_header('text/plain',0)
           return
@@ -143,18 +148,10 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
           self.return_login_page()
           return
 
-      # if self.path.startswith('/main'):
-      #   print('returning index.html (home)')
-      #   logging.debug('returning index.html (home)')
-      #   self.return_index_html_page()
-      #   return
-
-      if 'mjpg' in self.path:
-        print('📹 mjpg in path')
-        logging.debug('📹 mjpg in self.path')
-
       if self.path.startswith('/auth'):
-        client_sid = get_sid_from_cookie(self.headers)
+        # The header contains a valid SID but '/auth' is requested.
+        # This happens when the client is already authenticated but it somehow sent the /auth path
+        client_sid = self.get_sid_from_cookie(self.headers)
         print('Authentication request from a client which already has an sid: {}'.format(client_sid))
         logging.debug('Authentication request from a client which already has an sid: {}'.format(client_sid))
 
@@ -263,16 +260,21 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       motor_control.stop_motor()
       self.send_error(404, 'file not found')
 
-  def get_sid_from_cookie(self,headers):
+  def get_cookie_from_header(self,headers):
     cookie = headers.get('Cookie')
-    if cookie == None:
+    if cookie is None:
+      print('cookie not found in the header')
       return None
 
-    print('myCookie: {}'.format(str(cookie)))
+    #print('myCookie: {}'.format(str(cookie)))
     sc = http.cookies.SimpleCookie()
     sc.load(str(cookie))
-    if 'nrsid' in sc:
-      return sr['nrsid'].value
+    return sc
+
+  def get_sid_from_cookie(self,headers):
+    cookie = self.get_cookie_from_header(headers)
+    if 'nrsid' in cookie:
+      return cookie['nrsid'].value
     else:
       print('sid not found in cookie')
       return None
@@ -285,13 +287,12 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       logging.info("No session info on the server")
       return False
 
-    cookie = headers.get('Cookie')
-    print('vsi() Cookie: {}'.format(str(cookie)))
-    sc = http.cookies.SimpleCookie()
-    sc.load(str(cookie))
-    if 'nrsid' in sc:
+    cookie = self.get_cookie_from_header(headers)
+    if cookie is None:
+      return False # Cookie not found
+    elif 'nrsid' in cookie:
       # The cookie has 'nrsid'
-      client_sid = sc['nrsid'].value
+      client_sid = cookie['nrsid'].value
       user_agent = [item for item in headers.items() if item[0] == 'User-Agent']
       user_agent_value = user_agent[0][1]
       session_info = [item for item in sesison_info_list if client_sid == item['sid']]
