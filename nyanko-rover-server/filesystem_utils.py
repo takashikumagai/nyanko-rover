@@ -1,5 +1,7 @@
 # Filesystem utilities written by Takashi Kumagai
 
+import os
+
 # Returns true if a file (either a regular file or a symbolic link)
 # with the specified pathname exists
 def file_exists(pathname):
