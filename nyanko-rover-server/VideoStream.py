@@ -45,6 +45,9 @@ class VideoStream:
 
     def stop_capture(self):
 
+        if self.camera is None:
+            return
+
         self.is_capture_on = False
 
         time.sleep(0.5)
