@@ -24,6 +24,7 @@ import motor_control
 import NetworkStatusReporter
 import VideoStream
 import networktool
+import filesystem_utils
 
 
 httpd = None
@@ -41,18 +42,6 @@ server_params = {}
 sesison_info_list = []
 
 guest_pin = ''
-
-def file_exists(pathname):
-  if not os.path.exists(pathname):
-    print('Path "{}" does not exist.'.format(pathname))
-    logging.debug('Path "{}" does not exist.'.format(pathname))
-    return False
-  elif not os.path.isfile(pathname):
-    print('Path "{}" is not a file.'.format(pathname))
-    logging.debug('Path "{}" is not a file.'.format(pathname))
-    return False
-  else:
-    return True
 
 def guess_script_file_directory():
   filename = inspect.getframeinfo(inspect.currentframe()).filename
@@ -341,7 +330,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
   def return_login_page(self):
     print('Returning login page.')
     logging.debug('Returning login page.')
-    if not file_exists('auth.html'):
+    if not filesystem_utils.file_exists('auth.html'):
       return
     with open('auth.html', 'rb') as f:
       fs = os.fstat(f.fileno())
