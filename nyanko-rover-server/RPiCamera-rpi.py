@@ -41,13 +41,26 @@ class RPiCamera:
 
     self.stop_streaming = False
 
+  def start_capture(self):
+
+    if self.pi_camera is None:
+      return
+
+    print('(picamera) starting video capture - not implemented yet')
+    pass
+
   def stop_capture(self):
     self.pi_camera.stop_recording()
 
   def close(self):
+    print('(TestImageCamera) closing the device - nothing to do')
     pass
 
   def get_frame(self):
+
+    if self.pi_camera is None:
+      return
+
     with self.streaming_output.condition:
       self.streaming_output.condition.wait()
       return self.streaming_output.frame
