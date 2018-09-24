@@ -20,7 +20,9 @@ class VideoStream:
             if camera_device == 'picamera':
                 self.camera = RPiCamera.RPiCamera()
             elif camera_device == 'stub':
-                self.camera = TestImageCamera.TestImageCamera()
+                self.camera = TestImageCamera.TestImageCamera(['img1.jpg','img2.jpg','img3.jpg'])
+            elif camera_device == 'dualfisheye-stub':
+                self.camera = TestImageCamera.TestImageCamera(['dualfisheye1.jpg','dualfisheye2.jpg','dualfisheye3.jpg'])
             else:
                 self.camera = V4L2Camera.V4L2Camera(camera_device)
         except Exception as e:
