@@ -47,26 +47,37 @@ function toggleCameras() {
 
   if( current_camera_device == 'front' ) {
 
-    disableStream().then(function(){
-      console.log('front camera stream successfully closed. opening 360 camera stream.')
-      //doc.style.backgroundImage = "url('/stream360.mjpg')";
-      doc.style.backgroundImage = "url('/bg.jpg')";
+    // Commented out: don't disable the streaming by the client because other clients might be watching the feed
+    //disableStream().then(function(){
+    //  console.log('front camera stream successfully closed. opening 360 camera stream.')
+    //  //doc.style.backgroundImage = "url('/stream360.mjpg')";
+    //  doc.style.backgroundImage = "url('/bg.jpg')";
 
-      document.getElementById('spherical-scene').style.display = "block";
+    //  document.getElementById('spherical-scene').style.display = "block";
 
-      current_camera_device = '360';
-    });
+    //  current_camera_device = '360';
+    //});
+
+    document.getElementById('spherical-scene').style.display = "block";
+    doc.style.backgroundImage = "url('/images/bg.jpg')"; // Stop streaming on the background by setting a blank image.
+    current_camera_device = '360';
+
   }
   else if( current_camera_device == '360' ) {
 
-    disable360Stream().then(function(){
-      console.log('360 camera stream successfully closed. opening front camera stream.')
-      doc.style.backgroundImage = "url('/stream.mjpg')";
+    // Commented out: see the comment in the if block above.
+    //disable360Stream().then(function(){
+    //  console.log('360 camera stream successfully closed. opening front camera stream.')
+    //  doc.style.backgroundImage = "url('/stream.mjpg')";
 
-      document.getElementById('spherical-scene').style.display = "none";
+    //  document.getElementById('spherical-scene').style.display = "none";
 
-      current_camera_device = 'front';
-    });
+    //  current_camera_device = 'front';
+    //});
+
+    doc.style.backgroundImage = "url('/stream.mjpg')";
+    document.getElementById('spherical-scene').style.display = "none";
+    current_camera_device = 'front';
   }
 }
 
