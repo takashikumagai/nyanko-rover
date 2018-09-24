@@ -6,6 +6,7 @@ import v4l2capture
 
 import select
 import io
+import time
 from PIL import Image
 
 class V4L2Camera:
@@ -45,7 +46,12 @@ class V4L2Camera:
         # Wait until the video is ready for reading
         select.select((self.video,),(),())
 
-        image_data = self.video.read_and_queue()
+        image_data = ''
+        try:
+            image_data = self.video.read_and_queue()
+        except Exception:
+            print('video.read_and_queue() threw. Returning an empty frame data in 1s.')
+            time.sleep(1)
 
         #print('image data size: {}'.format(len(image_data)))
         #print('(v4l2) camera resolution: {} x {}'.format(self.size_x,self.size_y))
