@@ -461,8 +461,13 @@ def start():
   with open('server_params.json','r') as f:
     server_params = json.load(f)
 
+  # Initialize camera devices
+  # Each server param here is one of these:
+  # 1. A video device path, such as '/dev/v4l/by-id/usb-...-video-index0',
+  # 2. 'picamera', which represents a raspberry pi camera
+  # 3. A pre-defined stub (fake) camera device names ('stub' or 'dualfisheye-stub')
   video_stream = VideoStream.VideoStream(server_params['front_camera'])
-  video_stream_360 = VideoStream.VideoStream('/dev/v4l/by-id/usb-Arashi_Vision_Insta360_Air-video-index0')
+  video_stream_360 = VideoStream.VideoStream(server_params['spherical_camera'])
 
   # try:
   #   address = ('', 8000)
