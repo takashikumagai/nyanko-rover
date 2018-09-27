@@ -129,7 +129,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
           logging.debug('🔑 Authenticating.')
 
           # SID was not found in the cookie
-          # If this is a valid auth request, the header should contain as password
+          # If this is a valid auth request, the header should contain a password
 
           registered = self.register_client(self.headers)
 
@@ -137,7 +137,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Authenticated; response was set in register_client() so we just return now
             return
           else:
-            # Either the password was wrong or there was not password in the header
+            # Either the password was wrong or there was no password in the header
             logging.debug('authentication failed. Returning an empty string instead of a session ID')
             self.send_response_and_header('text/plain',0)
           return
