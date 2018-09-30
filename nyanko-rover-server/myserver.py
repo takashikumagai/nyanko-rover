@@ -41,6 +41,8 @@ server_params = {}
 # i.e. each element is a dictionary
 sesison_info_list = []
 
+server_instance_id = str(random.randint(0,999999999999)).zfill(12)
+
 guest_pin = ''
 
 def guess_script_file_directory():
@@ -101,9 +103,17 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       self.send_header("Last-Modified", self.date_time_string(1522536578))
       self.end_headers()
 
+  def send_dict_as_json(self,dict_to_send):
+      text = json.dumps(dict_to_send)
+      encoded = text.encode('utf-8')
+      self.send_response_and_header('application/json',len(encoded))
+      self.wfile.write(encoded)
+      self.wfile.flush()
+
   #handle GET command
   def do_GET(self):
 
+    global server_instance_id
     global video_stream
     global video_stream_360
 
@@ -155,12 +165,11 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         print('Authentication request from a client which already has an sid: {}'.format(client_sid))
         logging.debug('Authentication request from a client which already has an sid: {}'.format(client_sid))
 
-        xml_text = '<?xml version="1.0" encoding="UTF-8"?>\n<r>already-authenticated</r>'
-        encoded = xml_text.encode('utf-8')
-        self.send_response_and_header('text/xml',len(encoded))
-        self.wfile.write(encoded)
-        self.wfile.flush()
-        logging.debug('response xml: {}'.format(str(self)))
+        self.send_dict_as_json({'auth_status':'already-authenticated'})
+        logging.debug('returning "already authenticated" status')
+        return
+      elif self.path.startswith('/siid'):
+        send_dict_as_json({'siid':server_instance_id})
         return
       if self.path.startswith('/forward'):
         logging.debug('driving forward')
@@ -384,13 +393,7 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
       # Authentication succeeded
       print('Returning a session ID')
       logging.info('Returning a session ID')
-      # Hands out a session ID to the client
-      xml_text = '<?xml version="1.0" encoding="UTF-8"?>\n<sid>{}</sid>'.format(sid)
-      encoded = xml_text.encode('utf-8')
-      self.send_response_and_header('text/xml',len(encoded))
-      self.wfile.write(encoded)
-      self.wfile.flush()
-      logging.debug(str(self))
+      self.send_dict_as_json({'siid':server_instance_id,'sid':sid})
       return True
 
   def control_stream(self,video_stream,op):

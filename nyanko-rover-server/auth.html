@@ -107,7 +107,35 @@
         // responds with this page instead of index.html because of the way the cache works,
         // so if the session id is already present in the cookie directly proceed to index.html
         if( getCookie('nrsid') != null ) {
-            window.location.assign('/index.html?_=' + new Date().getTime());
+
+            alert('checking siid');
+            getServerInstanceId().then(function(serverInstanceId){
+                console.log('then serverInstanceId: '+ serverInstanceId);
+                let siidClientCurrentlyHas = getCookie('siid');
+                if(siidClientCurrentlyHas != null && siidClientCurrentlyHas == serverInstanceId) {
+                    console.log("🐈🐈🐈🐈🐈opening index.html");
+                    window.location.assign('/index.html?_=' + new Date().getTime());
+                }
+            });
+        }
+
+        function getServerInstanceId() {
+            return new Promise((resolve,reject) => {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET','/siid');
+                xhr.onload = function() {
+                    if(this.status >= 200 && this.status < 300) {
+                        if(xhr.responseText != null) {
+                            let j = JSON.parse(xhr.responseText);
+                            resolve(j.siid);
+                        } else {
+                            console.log('xhr.responseText for siid is null.s')
+                        }
+                    } else {
+                        reject();
+                    }
+                }
+            })
         }
 
         function getCookie(name) {
@@ -179,25 +207,18 @@
 
             console.log('xhr response text: '+xhr.responseText);
 
-            let sidXml = parseMyXml(xhr.responseText);
-            let nodes = sidXml.getElementsByTagName('sid');
-            if(nodes.length == 0) {
-                let r = sidXml.getElementsByTagName('r');
-                if(0 < r.length && r[0].innerHTML == 'already-authenticated') {
-                    window.location.assign('/index.html?_=' + new Date().getTime());
-                    return;
-                }
-                console.log('sid node not detected.');
-                window.location = "auth_failed.html";
-            }
-            let sessionId = nodes[0].innerHTML;
+            let response = JSON.parse(xhr.responseText);
+
+            let sessionId = response.sid;
+            let serverInstanceId = response.siid;
 
             console.log('session ID: '+sessionId);
+            console.log('server instance ID: '+serverInstanceId);
             //alert(xhr.responseText);
 
             sessionStorage.setItem('nrsid',sessionId);
 
-            let cookieStr = "nrsid=" + sessionId.toString();
+            let cookieStr = "nrsid=" + sessionId.toString() + '; siid=' + serverInstanceId.toString();
             document.cookie = cookieStr;
 
             window.location.assign('/index.html?_=' + new Date().getTime());
