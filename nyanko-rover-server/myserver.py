@@ -226,6 +226,10 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.flush()
         return
 
+      elif self.path.startswith('/reset_device'):
+        return
+        #usbreset()
+
       elif self.path == '/stream.mjpg':
         video_stream.start_streaming(self)
 
