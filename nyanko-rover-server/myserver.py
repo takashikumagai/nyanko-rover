@@ -25,6 +25,7 @@ import NetworkStatusReporter
 import VideoStream
 import networktool
 import filesystem_utils
+import usbutil
 
 
 httpd = None
@@ -187,8 +188,8 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
           motor_control.set_steering(90)
         elif 0 <= self.path.find('dir=right'):
           motor_control.set_steering(-90)
-      elif self.path.startswith('/reset'):
-        print('Resetting')
+      #elif self.path.startswith('/reset'):
+        #print('Resetting')
         #motor_control.stop_motor()
       elif self.path.startswith('/take_photo'):
         print('Taking a photo')
@@ -236,8 +237,13 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         return
 
       elif self.path.startswith('/reset_device'):
+        video_stream_360.close() # Close the device
+        time.sleep(3)
+        usbutil.reset_device(server_params['spherical_camera_id']) # Reset the camera device
+        time.sleep(3)
+        video_stream_360 = VideoStream.VideoStream(server_params['spherical_camera'])
+        print('Device was reset.')
         return
-        #usbreset()
 
       elif self.path == '/stream.mjpg':
         video_stream.start_streaming(self)

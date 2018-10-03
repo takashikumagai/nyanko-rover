@@ -81,7 +81,21 @@ function toggleCameras() {
   }
 }
 
-
+function resetSphericalCamera() {
+  return new Promise((resolve,reject) => {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET','/reset_device');
+    xhr.onload = function() {
+      if(this.status >= 200 && this.status < 300) {
+        resolve();
+      } else {
+        reject();
+      }
+    }
+    xhr.onerror = reject;
+    xhr.send();
+  });
+}
 
 
 
