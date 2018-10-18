@@ -133,12 +133,12 @@ function initSphericalView() {
 
     // VR-related settings
 
-    //renderer.vr.enabled = true;
+    renderer.vr.enabled = true;
     //
-    //window.addEventListener( 'vrdisplaypointerrestricted', onPointerRestricted, false );
-    //window.addEventListener( 'vrdisplaypointerunrestricted', onPointerUnrestricted, false );
+    window.addEventListener( 'vrdisplaypointerrestricted', onPointerRestricted, false );
+    window.addEventListener( 'vrdisplaypointerunrestricted', onPointerUnrestricted, false );
 
-    //document.body.appendChild( WEBVR.createButton( renderer ) );
+    document.body.appendChild( WEBVR.createButton( renderer ) );
 
 }
 
