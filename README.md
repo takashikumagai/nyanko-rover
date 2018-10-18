@@ -50,4 +50,22 @@ ssh user@192.168.10.100 -i ~/.ssh/id_rsa-rpi_ssh_server
 
 Make sure no one else gets their hands on your computer (remember your private key is not encrypted)
 
+4. Edit the sudoers file to enable password-less executions of reboot and shutdown commands.
+
+Run
+
+```
+sudo visudo
+```
+
+from terminal to launch the editor, then add these lines:
+
+```
+# Need this to power off the device from web app GUI
+username ALL=(ALL) NOPASSWD: /sbin/reboot, /sbin/shutdown
+
+```
+
+Replace username above with your user name.
+
 
