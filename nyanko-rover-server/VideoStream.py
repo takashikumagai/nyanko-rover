@@ -52,6 +52,7 @@ class VideoStream:
 
         self.is_capture_on = False
 
+        # Wait for the streaming thread to exit the thread loop in start_streaming()
         time.sleep(0.5)
 
         self.camera.stop_capture()
@@ -59,14 +60,23 @@ class VideoStream:
         #    self.camera.stop_recording()
     
     def close(self):
-        self.camera.stop_capture()
+
+        if self.camera is None:
+            print('No camera device to close.')
+            return
+
+        # Stop the streaming thread
+        self.stop_capture()
+
+        # Shut down the device
         self.camera.close()
 
     # Enters the stream main loop and keeps returning frame data indefinitely
     # until stop_capture() is called.
     def start_streaming(self,http_request_handler):
 
-        self.start_capture()
+        #if not self.is_capture_on:
+        self.start_capture() # Start the capture first
 
         if self.camera == None:
             logging.info('camera not available')
