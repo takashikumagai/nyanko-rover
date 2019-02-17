@@ -9,4 +9,4 @@ cd ${dirpath}/..
 
 rm -f nyankoroverserver.log
 
-./myserver.py &
+sudo ./myserver.py &
