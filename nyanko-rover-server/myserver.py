@@ -14,11 +14,11 @@ import random
 import json
 
 # Third-party Python libraries
-from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import psutil
 import vcgencmd
 
 # Proprietary Python modules
+import NyankoRoverWebSocket
 import cmdutil
 import motor_control
 import NetworkStatusReporter
@@ -30,7 +30,6 @@ import usbutil
 
 httpd = None
 ws_server = None
-motor_controller_thread = None
 web_server_thread = None
 websocket_server_thread = None
 video_stream = None
@@ -417,36 +416,6 @@ class NyankoRoverHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     ##elif op == 'stop':
     ##  video_stream.stop_recording()
 
-class NyankoRoverWebSocket(WebSocket):
-
-    #def __init__(self):
-    #    super(NyankoRoverWebSocket,self).__init__()
-    #     WebSocket.__init__(self)
-        #self.network_status_reporter = None
-
-    def handleMessage(self):
-        print("ws:message received: {}".format(self.data))
-
-        # Unpack the data
-        motor = self.data[0:1] # 'f' fwd/back or 's' for steering
-        value = int(float(self.data[1:]))
-        print('motor: {}, speed/steer: {}'.format(motor,value))
-        if motor == 'f':
-          motor_control.set_fwd_back_motor_speed(value)
-        elif motor == 's':
-          motor_control.set_steering(value)
-
-    def handleConnected(self):
-        print(self.address, 'ws:connected')
-
-        self.network_status_reporter = NetworkStatusReporter.NetworkStatusReporter(self)
-        self.network_status_reporter.start()
-
-    def handleClose(self):
-        print(self.address, 'ws:closed')
-
-        if self.network_status_reporter != None:
-            self.network_status_reporter.stop()
 
 
 
@@ -463,7 +432,6 @@ def start():
   global ws_server
   global video_stream
   global video_stream_360
-  global motor_controller_thread
   global web_server_thread
   global websocket_server_thread
   global server_params
@@ -490,10 +458,7 @@ def start():
   #   mycamera.stop_recording()
 
   # Set up and start the motor controller
-  logging.info('Setting up the motor controller...')
-  motor_control.init()
-  motor_controller_thread = threading.Thread(target = motor_control.run)
-  motor_controller_thread.start()
+  motor_control.start()
 
   # Set up and start the web server
   logging.info('Setting up the web server...')
@@ -509,13 +474,7 @@ def start():
   logging.info('Starting the server...')
   web_server_thread.start()
 
-  # Set up and start the WebSocket server
-  logging.info('Setting up the WebSocket server...')
-  ws_port = 9792
-  ws_server = SimpleWebSocketServer('', ws_port, NyankoRoverWebSocket)
-  print("Starting a WebSocket server (port: {}).".format(ws_port))
-  websocket_server_thread = threading.Thread(target = ws_server.serveforever)
-  websocket_server_thread.start()
+  NyankoRoverWebSocket.create_and_start_web_socket_server(9792)
 
 def run():
 
@@ -523,7 +482,6 @@ def run():
   global ws_server
   global video_stream
   global video_stream_360
-  global motor_controller_thread
   global web_server_thread
   global websocket_server_thread
 
@@ -564,7 +522,7 @@ def run():
     logging.info('Terminating the motor controller thread.')
     motor_control.shutdown()
     try:
-      motor_controller_thread.join()
+      motor_control.join()
     except KeyboardInterrupt:
       pass
 

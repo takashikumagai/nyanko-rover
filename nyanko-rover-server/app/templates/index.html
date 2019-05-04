@@ -12,15 +12,15 @@
     <meta http-equiv="origin-trial" data-feature="WebXR Gamepad Support" data-expires="2018-10-24" content="Agrr6lZhlwzv5jmv/mpLZA37DIiVcg3HvX8bH8EWB+OBruV3sUJuzDfYz6qs/je+LcH41DkrmPn4k9RaUaqpQAAAAABYeyJvcmlnaW4iOiJodHRwczovL3RocmVlanMub3JnOjQ0MyIsImZlYXR1cmUiOiJXZWJYUkdhbWVwYWRTdXBwb3J0IiwiZXhwaXJ5IjoxNTQwMzg4NjI0fQ==">
     
     <title>HAMB Rover</title>
-    <script src="js/side_navigation_menu.js"></script>
-    <script src="js/menu.js"></script>
-    <script src="js/live_streaming.js"></script>
-    <script src="nr_websocket.js"></script>
-    <script src="nr_rover_control.js"></script>
-    <script src="nr_gamepad.js"></script>
-    <link rel="stylesheet" href="css/side_navigation_menu.css">
-    <link rel="stylesheet" href="css/master.css">
-    <link rel="stylesheet" href="css/modal.css">
+    <script src="{{ url_for('static', filename='js/side_navigation_menu.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/live_streaming.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/nr_websocket.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/nr_rover_control.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/nr_gamepad.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/side_navigation_menu.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/master.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/modal.css') }}">
   </head>
   <body>
 
@@ -45,7 +45,7 @@
     </div>
 
     <div id="live-feed-360-page">
-        <img src="images/bg.jpg" />
+        <img src="{{ url_for('static', filename='img/bg.jpg') }}" />
     </div>
 
     <!-- Status -->
@@ -132,8 +132,8 @@
     </div>
 
     <!--script src='js/on_page_loaded.js'></script-->
-		<script src="js/three.min.js"></script>
-		<script src="js/WebVR.js"></script>
-    <script src='js/spherical_camera_view.js'></script>
+		<script src="{{ url_for('static', filename='js/three.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/WebVR.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/spherical_camera_view.js') }}"></script>
   </body>
 </html>

@@ -3,6 +3,7 @@
 import RPi.GPIO as gpio
 from time import sleep
 import logging
+import threading
 import queue
 
 # For controlling the forward/backward motor
@@ -20,6 +21,7 @@ steering_motor = None
 
 myqueue = None
 shutdown_requested = False
+motor_controller_thread = None
 
 def clamp(my_value, min_value, max_value):
     return max(min(my_value, max_value), min_value)
@@ -194,6 +196,20 @@ def run():
         logging.error('An exception occurred: {}'.format(str(e)))
     finally:
         logging.error('motor_control is closing.')
+
+def start_thread():
+    global motor_controller_thread
+    logging.info('Setting up the motor controller...')
+    init()
+    motor_controller_thread = threading.Thread(target = run)
+    motor_controller_thread.start()
+
+def join():
+    global motor_controller_thread
+    if motor_controller_thread not None:
+        motor_controller_thread.join()
+    else:
+        logging.info('!motor_controller_thread')
 
 if __name__ == '__main__':
     init()

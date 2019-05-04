@@ -9,4 +9,7 @@ cp -f stub/server_params-stub.json nyanko-rover-server/server_params.json
 cd nyanko-rover-server
 rm -rf __pycache__
 rm -f nyankoroverserver.log
-./myserver.py
+#./myserver.py
+
+# Start the local Flask server
+pipenv run flask run

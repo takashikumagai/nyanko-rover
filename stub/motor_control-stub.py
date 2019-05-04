@@ -51,6 +51,12 @@ def shutdown():
     shtudown_requested = True
     pass
 
+def start_thread():
+    print('starting')
+
+def join():
+    print('joining')
+
 if __name__ == '__main__':
     run()
 
