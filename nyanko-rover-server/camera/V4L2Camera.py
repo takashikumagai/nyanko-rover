@@ -1,7 +1,10 @@
 # Streams mjpeg video sourced from a V4L (Video for Linux) camera device
 
-# Git cloned from the repo below and installed with 'python3 setup.py install'
-# https://github.com/gebart/python-v4l2capture.git
+# Installed this by executing the command below
+# - pipenv install -e git+https://github.com/gebart/python-v4l2capture.git#egg=v4l2capture
+# Note: before using pipenv, this was installed with these steps
+# - git clone https://github.com/gebart/python-v4l2capture.git
+# - python3 setup.py install
 import v4l2capture
 
 import select

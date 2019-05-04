@@ -1,7 +1,7 @@
-from flask import render_template
-from flask import send_file
+from flask import render_template, Response
 from app import app
 import logging
+import json
 
 import psutil
 import vcgencmd
@@ -9,6 +9,9 @@ import vcgencmd
 # Proprietary Python modules
 import cmdutil
 import motor_control
+from camera import CameraFactory
+
+camera = None
 
 @app.route('/')
 @app.route('/index')
@@ -75,3 +78,21 @@ def hw_status():
 def take_photo():
     logging.debug('take-photo')
     cmdutil.exec_cmd_async(['raspistill', '-o', 'myphoto.jpg'], on_photo_saved)
+
+def gen(camera):
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/stream.mjpg')
+def stream_mjpg():
+    global camera
+    if camera is None:
+        with open('server_params.json','r') as f:
+            server_params = json.load(f)
+            camera = CameraFactory.create_camera(server_params['front_camera'])
+            camera.start_capture()
+    logging.info('streaming')
+    return Response(gen(camera),
+            mimetype='multipart/x-mixed-replace; boundary=frame')

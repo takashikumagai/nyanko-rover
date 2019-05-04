@@ -12,6 +12,8 @@ psutil = "*"
 flask-socketio = "*"
 eventlet = "*"
 simplewebsocketserver = "*"
+v4l2capture = {editable = true,git = "https://github.com/gebart/python-v4l2capture.git"}
+pillow = "*"
 
 [requires]
 python_version = "3.5"
