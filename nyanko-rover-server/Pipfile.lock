@@ -48,6 +48,7 @@
         },
         "greenlet": {
             "hashes": [
+                "sha256:fac7a188731ea773bcc0bd9af5f10dcbf39b7c7ca88e501b025e7c859e6ee4fd",
                 "sha256:000546ad01e6389e98626c1367be58efa613fa82a1be98b0c6fc24b563acc6d0",
                 "sha256:0d48200bc50cbf498716712129eef819b1729339e34c3ae71656964dac907c28",
                 "sha256:23d12eacffa9d0f290c0fe0c4e81ba6d5f3a5b7ac3c30a5eaf0126bf4deda5c8",
@@ -86,6 +87,7 @@
         },
         "markupsafe": {
             "hashes": [
+                "sha256:8ddcf408bcd43551e9b5376c8e9dace9c4101e74018e40dddc9f044a9f16dd0c",
                 "sha256:00bc623926325b26bb9605ae9eae8a215691f33cae5df11ca5424f06f2d1f473",
                 "sha256:09027a7803a62ca78792ad89403b1b7a73a01c8cb65909cd876f7fcebd79b161",
                 "sha256:09c4b7f37d6c648cb13f9230d847adf22f8171b1ccc4d5682398e77f40309235",
