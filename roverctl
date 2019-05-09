@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Load configuration parameters
+server_ip_address=$(cat nyanko-rover-config.json | python3 -c "import sys, json; print(json.load(sys.stdin)['server_ip_address'])")
+ssh_port=$(cat nyanko-rover-config.json | python3 -c "import sys, json; print(json.load(sys.stdin)['ssh_port'])")
+ssh_key=$(cat nyanko-rover-config.json | python3 -c "import sys, json; print(json.load(sys.stdin)['ssh_key'])")
+user=$(cat nyanko-rover-config.json | python3 -c "import sys, json; print(json.load(sys.stdin)['login_user'])")
+
+if [ "$1" = "restart_server" ]; then
+  ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "/home/$user/nyanko-rover-server/server_utils/restart_server.sh"
+elif [ "$1" = "view_log" ]; then
+  ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "tail -f /home/$user/nyanko-rover-server/nyankoroverserver.log"
+elif [ "$1" = "shutdown" ]; then
+  ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "sudo shutdown now"
+elif [ "$1" = "reboot" ]; then
+  ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "sudo reboot now"
+fi
