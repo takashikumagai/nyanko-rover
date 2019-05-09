@@ -9,4 +9,4 @@ cd ${dirpath}/..
 
 rm -f nyankoroverserver.log
 
-sudo ./myserver.py &
+pipenv run flask run --host='0.0.0.0'

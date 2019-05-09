@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-ps -aux | grep python3
+p=$(ps -aux | grep -E -m 1 nyanko-rover-server.+flask.+run)
+q={$p}
 
 echo "Terminating the process"
-sudo pkill -f "python3 ./myserver.py"
+sudo pkill -f ${q[1]}
 
-ps -aux | grep python3
+ps -aux | grep -E -m 1 nyanko-rover-server.+flask.+run

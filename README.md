@@ -71,3 +71,12 @@ username ALL=(ALL) NOPASSWD: /sbin/reboot, /sbin/shutdown
 Replace username above with your user name.
 
 
+#### 5. Login to the Pi and install required packages
+
+```
+sudo apt install libjpeg-dev zlib1g-dev libv4l-dev
+```
+
+- Pillow does not install on RPi 3A+ without the libjpeg-dev and zlib1g-dev packages
+  - Ref: https://stackoverflow.com/questions/44043906/the-headers-or-library-files-could-not-be-found-for-jpeg-installing-pillow-on#
+- v4l2capture needs libv4l-dev

@@ -119,7 +119,7 @@ def mainloop():
             continue
 
         #logging.debug('myqueue item: {}'.format(item))
-        
+
         code = item[0:1]
         if len(item) == 1:
             if code == 'f':
@@ -156,7 +156,7 @@ def start_motor_backward(rotation_speed):
 def init():
     global myqueue
     myqueue = queue.Queue()
-   
+
 
 # These APIs put an item on a queue and return control to the caller immediately
 
@@ -186,7 +186,7 @@ def run():
 
     try:
         init_gpio()
-        
+
         mainloop()
 
         cleanup()
@@ -206,7 +206,7 @@ def start_thread():
 
 def join():
     global motor_controller_thread
-    if motor_controller_thread not None:
+    if motor_controller_thread is not None:
         motor_controller_thread.join()
     else:
         logging.info('!motor_controller_thread')
