@@ -1,4 +1,4 @@
-from flask import render_template, Response
+from flask import render_template, Response, request
 from app import app
 import logging
 import json
@@ -44,11 +44,14 @@ def stop():
 @app.route('/steer')
 def steer():
     logging.debug('steering')
-    param = ''
-    if 0 <= param.find('dir=left'):
-        motor_control.set_steering(90)
-    elif 0 <= param.find('dir=right'):
-        motor_control.set_steering(-90)
+    params = request.args.to_dict()
+    dir = params.get('dir')
+    if dir == 'left':
+        motor_control.set_steering(95)
+    elif dir == 'right':
+        motor_control.set_steering(-95)
+    else:
+        logging.debug("!dir")
     return "steering"
 
 @app.route('/shutdown')
