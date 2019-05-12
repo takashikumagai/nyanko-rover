@@ -5,13 +5,17 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import threading
 import logging
 
+import motor_control
+
+ws_server = None
+
 class NyankoRoverWebSocket(WebSocket):
 
-    def __init__(self):
-        logging.debug("NyankoRoverWebSocket is initializing...")
-    #    super(NyankoRoverWebSocket,self).__init__()
-    #     WebSocket.__init__(self)
-        #self.network_status_reporter = None
+#    def __init__(self):
+#        logging.debug("NyankoRoverWebSocket is initializing...")
+#    #    super(NyankoRoverWebSocket,self).__init__()
+#    #     WebSocket.__init__(self)
+#        #self.network_status_reporter = None
 
     def handleMessage(self):
         logging.debug("ws:message received: {}".format(self.data))
@@ -28,20 +32,24 @@ class NyankoRoverWebSocket(WebSocket):
     def handleConnected(self):
         logging.debug(self.address, 'ws:connected')
 
-        self.network_status_reporter = NetworkStatusReporter.NetworkStatusReporter(self)
-        self.network_status_reporter.start()
+        #self.network_status_reporter = NetworkStatusReporter.NetworkStatusReporter(self)
+        #self.network_status_reporter.start()
 
     def handleClose(self):
         logging.debug(self.address, 'ws:closed')
 
-        if self.network_status_reporter != None:
-            self.network_status_reporter.stop()
+        #if self.network_status_reporter != None:
+        #    self.network_status_reporter.stop()
 
 # Set up and start the WebSocket server
 def create_and_start_web_socket_server(ws_port):
+    global ws_server
     logging.info('Setting up the WebSocket server...')
     ws_port = 9792
-    ws_server = SimpleWebSocketServer('', ws_port, NyankoRoverWebSocket)
-    logging.debug("Starting a WebSocket server (port: {}).".format(ws_port))
-    websocket_server_thread = threading.Thread(target = ws_server.serveforever)
-    websocket_server_thread.start()
+    try:
+        ws_server = SimpleWebSocketServer('', ws_port, NyankoRoverWebSocket)
+        logging.debug("Starting a WebSocket server (port: {}).".format(ws_port))
+        websocket_server_thread = threading.Thread(target = ws_server.serveforever)
+        websocket_server_thread.start()
+    except:
+        logging.error('websocket exception:', sys.exc_info()[0])
