@@ -10,6 +10,7 @@ import vcgencmd
 import cmdutil
 import motor_control
 from camera import CameraFactory
+import HWStatusReporter
 
 camera = None
 
@@ -67,15 +68,8 @@ def reboot():
 @app.route('/hw-status')
 def hw_status():
     logging.debug('hw-status')
-    hw_status = {
-        "uptime": get_uptime(),
-        "temp": vcgencmd.measure_temp(),
-        "cpu_usage": psutil.cpu_percent(),
-        "camera": {"supported": vcgencmd.get_camera('supported'), "detected": vcgencmd.get_camera('detected')},
-        "ip": '0.1.2.3',
-        "public_ip": '4.5.6.7'
-    }
-    return "hw-status"
+    hw_status_reporter = HWStatusReporter()
+    return hw_status_reporter.get_hw_status()
 
 @app.route('/take-photo')
 def take_photo():
