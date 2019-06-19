@@ -29,6 +29,7 @@ function openLiveFeedAndControl() {
     getDebug().style.display = 'none';
     getShutdown().style.display = 'none';
     getPinMenu().style.display = 'none';
+    closeSideNavMenu();
 }
 
 function openControlTest() {
@@ -38,6 +39,7 @@ function openControlTest() {
     getDebug().style.display = 'none';
     getShutdown().style.display = 'none';
     getPinMenu().style.display = 'none';
+    closeSideNavMenu();
 }
 
 function openStatus() {
@@ -47,6 +49,7 @@ function openStatus() {
     getDebug().style.display = 'none';
     getShutdown().style.display = 'none';
     getPinMenu().style.display = 'none';
+    closeSideNavMenu();
 }
 
 function openDeubg() {
@@ -56,6 +59,7 @@ function openDeubg() {
     getDebug().style.display = 'block';
     getShutdown().style.display = 'none';
     getPinMenu().style.display = 'none';
+    closeSideNavMenu();
 }
 
 function updatePin() {
