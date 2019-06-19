@@ -4,24 +4,35 @@
 var mouseDown = [0,0,0,0,0,0,0,0,0,0,0,0];
 
 var camera, scene, renderer;
+var ctx;
 var meshes = [];
 var prevClientX = 0, prevClientY = 0;
 
-const canvas2d = document.getElementById('2d');
-//canvas2d.width = 1024;
-//canvas2d.height = 1024;
-const ctx = canvas2d.getContext("2d");
+const mjpgMaterial = null;
 
-// Render this image to canvas2d above and use canvas2d as the texture for the sphere mesh
-const img = new Image();
-//img.crossOrigin = 'anonymous' // Commented out; this should be unnecessary as we live stream from the same origin.
-img.src = '/stream360.mjpg';
+function initCanvas2d() {
+    const canvas2d = document.getElementById('2d');
 
-// Test with a static image
-//img.src = '/images/dual-fisheye-sample-image.jpg';
+    if(!canvas2d) {
+        console.log('2D canvas for spherical view not available.')
+        return;
+    }
 
-const map = new THREE.Texture(canvas2d);
-const mjpgMaterial = new THREE.MeshBasicMaterial({ map: map });
+    //canvas2d.width = 1024;
+    //canvas2d.height = 1024;
+    ctx = canvas2d.getContext("2d");
+    
+    // Render this image to canvas2d above and use canvas2d as the texture for the sphere mesh
+    const img = new Image();
+    //img.crossOrigin = 'anonymous' // Commented out; this should be unnecessary as we live stream from the same origin.
+    img.src = '/stream360.mjpg';
+    
+    // Test with a static image
+    //img.src = '/images/dual-fisheye-sample-image.jpg';
+    
+    const map = new THREE.Texture(canvas2d);
+    mjpgMaterial = new THREE.MeshBasicMaterial({ map: map });    
+}
 
 /**
  * dir: 1 or -1
@@ -100,6 +111,12 @@ function initSphericalView() {
 
     console.log('initSphericalView')
 
+    let canvas3d = document.getElementById('3d');
+    if(ctx == undefined || canvas3d == undefined) {
+        console.log('!ctx/canvas3d')
+        return;
+    }
+
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
     camera.position.z = 0;
 
@@ -122,7 +139,7 @@ function initSphericalView() {
 
     console.log('Creating WebGL renderer')
 
-    renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('3d') });
+    renderer = new THREE.WebGLRenderer({ canvas: canvas3d });
 
     //renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -198,17 +215,22 @@ function animate() {
 
     requestAnimationFrame( animate );
 
+    if(!renderer || !ctx) {
+        //console.log('!ctx/renderer');
+        return;
+    }
+
     try {
 
     // Draw the mjpg stream into the context.
     // This updates the texture.
     ctx.drawImage(img, 0, 0, 500, 500);
     map.needsUpdate = true;
-} catch(err) {
-    console.log('drawImage threw an exception: ' + err.message);
+    } catch(err) {
+        console.log('drawImage threw an exception: ' + err.message);
 
-    //resetSphericalCamera();
-}
+        //resetSphericalCamera();
+    }
 
     renderer.render( scene, camera );
 }
@@ -224,6 +246,8 @@ function animate() {
 //    xhr.open('GET','reset_spherical_camera');
 //    xhr.send();
 //}
+
+initCanvas2d();
 
 // Create a renderer and initialize a scene with sphere meshes
 initSphericalView();
