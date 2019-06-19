@@ -8,6 +8,8 @@ user=$(cat nyanko-rover-config.json | python3 -c "import sys, json; print(json.l
 
 if [ "$1" = "restart_server" ]; then
   ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "/home/$user/nyanko-rover-server/server_utils/restart_server.sh"
+elif [ "$1" = "stop_server" ]; then
+  ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "/home/$user/nyanko-rover-server/server_utils/stop_server.sh"
 elif [ "$1" = "view_log" ]; then
   ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "tail -f /home/$user/nyanko-rover-server/nyankoroverserver.log"
 elif [ "$1" = "shutdown" ]; then
