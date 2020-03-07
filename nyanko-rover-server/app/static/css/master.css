@@ -31,7 +31,14 @@ body {
     display: none;
 }
 
+#server-status {
+    padding: 5px;
+    background-color: rgba(0,0,0,0.5);
+    width: 420px;
+}
+
 #status-page ul {
+    color: #ddd;
     font-family: sans-serif;
     font-size: 24px;
 }
