@@ -1,14 +1,31 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 #from flask_socketio import SocketIO
 import logging
+import os
 
 # Module(s) that I created for this project
 import NyankoRoverWebSocket
 import motor_control
 
+login_manager = LoginManager()
+login_manager.login_message_category = 'info'
+
+# View to redirect to when the login is required
+login_manager.login_view = 'login'
 
 app = Flask(__name__)
 #socketio = SocketIO(app)
+
+db = SQLAlchemy(app)
+
+app.config['SECRET_KEY'] = os.environ['NYANKO_ROVER_SECRET_KEY']
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+
+db.init_app(app)
+
+login_manager.init_app(app)
 
 if __name__ == '__main__':
     print('name:main')
@@ -31,3 +48,4 @@ initialize()
 
 
 from app import routes
+from app import models
