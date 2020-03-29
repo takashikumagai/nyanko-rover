@@ -1,19 +1,30 @@
 #!/usr/bin/env bash
 
-# Load configuration parameters
-server_ip_address=$(cat nyanko-rover-config.json | python3 -c "import sys, json; print(json.load(sys.stdin)['server_ip_address'])")
-ssh_port=$(cat nyanko-rover-config.json | python3 -c "import sys, json; print(json.load(sys.stdin)['ssh_port'])")
-ssh_key=$(cat nyanko-rover-config.json | python3 -c "import sys, json; print(json.load(sys.stdin)['ssh_key'])")
-user=$(cat nyanko-rover-config.json | python3 -c "import sys, json; print(json.load(sys.stdin)['login_user'])")
+# Usage
+# ./roverctl ssh_host_name restart_server
 
-if [ "$1" = "restart_server" ]; then
-  ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "/home/$user/nyanko-rover-server/server_utils/restart_server.sh"
-elif [ "$1" = "stop_server" ]; then
-  ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "/home/$user/nyanko-rover-server/server_utils/stop_server.sh"
-elif [ "$1" = "view_log" ]; then
-  ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "tail -f /home/$user/nyanko-rover-server/nyankoroverserver.log"
-elif [ "$1" = "shutdown" ]; then
-  ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "sudo shutdown now"
-elif [ "$1" = "reboot" ]; then
-  ssh -i $ssh_key -o IdentitiesOnly=yes $user@$server_ip_address -p $ssh_port "sudo reboot now"
+user_env_var_on_remote_host=$(ssh ${ssh_remote_host} printenv | grep USER=)
+user=${user_env_var_on_remote_host:5}
+
+ssh_remote_host=$1
+cmd=$2
+
+if [ -z "${ssh_remote_host}" ]; then
+    echo "Specify an ssh host defined in ~/.ssh/config as the first argument"
+    exit 1
+fi
+
+if [ "${cmd}" = "restart_server" ]; then
+  ssh ${ssh_remote_host} "/home/${user}/nyanko-rover-server/server_utils/restart_server.sh"
+elif [ "${cmd}" = "stop_server" ]; then
+  ssh ${ssh_remote_host} "/home/${user}/nyanko-rover-server/server_utils/stop_server.sh"
+elif [ "${cmd}" = "tail-log" ]; then
+  ssh ${ssh_remote_host} "tail -f /home/${user}/nyanko-rover-server/nyankoroverserver.log"
+elif [ "${cmd}" = "view-log" ]; then
+  rsync ${ssh_remote_host}:/home/${user}/nyanko-rover-server/nyankoroverserver.log ./
+  code nyankoroverserver.log
+elif [ "${cmd}" = "shutdown" ]; then
+  ssh ${ssh_remote_host} "sudo shutdown now"
+elif [ "${cmd}" = "reboot" ]; then
+  ssh ${ssh_remote_host} "sudo reboot now"
 fi
