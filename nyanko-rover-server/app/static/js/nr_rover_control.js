@@ -63,6 +63,7 @@ function setFwdBackMotorSpeed(speed) {
   var msg = 'f' + speed.toString();
   console.log("ws msg (f/b): " + msg);
   if(myWebSocket != null && myWebSocket.readyState == WebSocket.OPEN) {
+    //console.log("sending speed to websocket server");
     myWebSocket.send(msg);
   }
 }
@@ -75,6 +76,7 @@ function setSteering(steering) {
   var msg = 's' + steering.toString();
   console.log("ws msg (steering): " + msg);
   if(myWebSocket != null && myWebSocket.readyState == WebSocket.OPEN) {
+    //console.log("sending steering angle to websocket server");
     myWebSocket.send(msg);
   }
 }
