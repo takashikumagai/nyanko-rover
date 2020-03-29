@@ -60,6 +60,9 @@
         </ul>
       </div>
       <div>
+        <button onclick="refreshStatus()">Refresh Status</button>
+      </div>
+      <div>
         <button onclick="resetSphericalCamera()">Reset Spherical Camera</button>
       </div>
     </div>
@@ -90,13 +93,13 @@
     <hr-->
 
     <!-- 360 Camera View -->
-    <div id="spherical-scene" onmousedown="onMouseDown(event)" onmouseup="onMouseUp(event)" onmousemove="onMouseMove(event)">
-      <!-- we draw mjpg onto this canvas and use the canvas as the texture -->
+    <!--div id="spherical-scene" onmousedown="onMouseDown(event)" onmouseup="onMouseUp(event)" onmousemove="onMouseMove(event)">
+      <-- we draw mjpg onto this canvas and use the canvas as the texture ->
       <canvas id="2d" width="512" height="512" style="display: none"></canvas>
 
-      <!-- This one is for rending 3D scene -->
+      <-- This one is for rending 3D scene ->
       <canvas id="3d" width="1000px" height="800px"></canvas>
-    </div>
+    </div-->
 
     <!-- Debug -->
     <div id="debug-page">
