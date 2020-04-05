@@ -97,10 +97,112 @@ function resetSphericalCamera() {
   });
 }
 
+function getVideoStreamParams() {
+  let r = document.querySelector('#video-stream-resolution');
+  let dim = r.options[r.selectedIndex].text.split('x');
+  let f = document.querySelector('#video-stream-framerate');
+  params = {
+    resolution: [parseInt(dim[0].trim()), parseInt(dim[1].trim())],
+    framerate: parseInt(f.options[f.selectedIndex].text),
+    quality: 0
+  }
+  console.log(`Selected video options: ${JSON.stringify(params)}`);
+  return params;
+}
 
+async function postCall(url, jsonPayload) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(jsonPayload)
+  });
+  return response;
+}
 
+function startVideoStream() {
+  document.querySelector('#document-body').style.backgroundImage
+  = `/stream.mjpg?${new Date().getTime()}`;
+  postCall('/start-video-stream', getVideoStreamParams())
+  .then(function(value) {
+    console.log('Stream started');
+    location.reload();
+  });
+}
 
+function stopVideoStream() {
+  postCall('/stop-video-stream', {})
+  .then(function(value) {
+    console.log('Stream stopped');
 
+    // Would it be better to hide the last frame by replace the image
+    // so that the user can easily see the video streaming is
+    // no longer happening?
+    //document.querySelector('#document-body').style.backgroundImage
+    //= '/static/img/logo.png';
+    //location.reload();
+});
+}
+
+function resetVideoStream() {
+
+  // Changing style.backgroundImage here with unique string does not work
+
+  let t = new Date().getTime();
+  postCall('/reset-video-stream', getVideoStreamParams())
+  .then(function(value) {
+    console.log('Stream reset');
+    // This works with src attribute of img tag but
+    // not with style.backgroundImage
+    //document.querySelector('#document-body').style.backgroundImage
+    //= '/stream.mjpg?t=' + t;
+
+    // This will cause the page to load /stream.mjpg again
+    // (See the Network tab to confirm this) but of course
+    // it also causes the full page reload and it's not smooth.
+    location.reload();
+  });
+}
+
+function closeVideoStream() {
+  postCall('/close-video-stream', {})
+  .then(function(value) {
+    console.log('Stream closed');
+  });
+}
+
+async function refreshStreamOptionViews() {
+
+  const response = await fetch('/get-video-stream-options', {
+    method: 'GET',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+    // Request with GET/HEAD method cannot have body
+    //body:
+  });
+
+  response.json().then((data) => {
+    let w = data.resolution[0];
+    let h = data.resolution[1];
+    let resolution = document.querySelector(`option[value='_${w}x${h}']`);
+    if(resolution) {
+        resolution.selected = true;
+    }
+    let framerate = document.querySelector(`option[value='_${data.framerate}']`);
+    if(framerate) {
+        framerate.selected = true;
+    }
+  });
+
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  await refreshStreamOptionViews();
+});
 
 
 
