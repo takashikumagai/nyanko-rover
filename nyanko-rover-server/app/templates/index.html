@@ -30,6 +30,7 @@
       <a href="javascript:void(0)" class="closebtn" onclick="closeSideNavMenu()">&times;</a>
       <a href="javascript:void(0)" onclick="openLiveFeedAndControl()">Live Feed + Control</a>
       <a href="javascript:void(0)" onclick="openControlTest()">Control Test</a>
+      <a href="javascript:void(0)" onclick="openStreamingOptions()">Streaming</a>
       <a href="javascript:void(0)" onclick="openStatus()">Status</a>
       <a href="javascript:void(0)" onclick="openDeubg()">Debug</a>
       <a href="javascript:void(0)" onclick="openPinMenu()">PIN (Guest)</a>
@@ -86,6 +87,26 @@
       <div class="motor_control">
         <button class="motor_control_button" type="button" name="backward_button" onclick="moveBackward()">&#x25BC;&#x25BC;</button>
       </div>
+    </div>
+
+    <!-- Streaming Options -->
+    <div id="streaming-options-page">
+      <span id="streaming-status"></span>
+      <button id="reset-streaming" onclick="resetVideoStream()">RESTART</button>
+      <button id="stop-streaming" onclick="stopVideoStream()">STOP</button>
+      <span>Resolution:</span>
+      <select name="" id="video-stream-resolution">
+        <option value="_320x240">320 x 240</option>
+        <option value="_640x480">640 x 480</option>
+        <option value="_720x480">720 x 480</option>
+        <option value="_1280x720">1280 x 720</option>
+      </select>
+      <span>Framerate:</span>
+      <select name="" id="video-stream-framerate">
+        <option value="_24">24</option>
+        <option value="_30">30</option>
+        <option value="_60">60</option>
+      </select>
     </div>
   
     <!--hr>

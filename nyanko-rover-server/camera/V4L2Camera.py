@@ -14,13 +14,14 @@ from PIL import Image
 
 class V4L2Camera:
 
-    def __init__(self,device_path):
+    def __init__(self,device_path,params=None):
         device_path_to_use = device_path if device_path is not None else '/dev/video0'
 
         self.video = v4l2capture.Video_device(device_path_to_use)
 
-        x = 1280
-        y = 1024
+        resolution = params['resolution'] if params else (1280,1024)
+        x = resolution[0]
+        y = resolution[1]
         self.size_x, self.size_y = self.video.set_format(x, y, fourcc='MJPG')
 
         print('(v4l2) camera resolution: {} x {}'.format(self.size_x,self.size_y))
@@ -39,6 +40,7 @@ class V4L2Camera:
         self.video.start()
 
     def stop_capture(self):
+        print('(v4l2) stopping video capture')
         self.video.stop()
 
     def close(self):
@@ -70,3 +72,12 @@ class V4L2Camera:
         #    frame = output.getvalue()
         #print('frame data size: {})'.format(len(contents)))
         #return frame
+
+    def get_resolution(self):
+        return (self.size_x, self.size_y)
+
+    def get_framerate(self):
+        return 24
+
+    def get_quality(self):
+        return 20

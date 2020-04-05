@@ -5,6 +5,7 @@ from app.models import User
 from app.login import LoginForm
 import logging
 import json
+import os
 
 import psutil
 import vcgencmd
@@ -89,6 +90,42 @@ def take_photo():
     logging.debug('take-photo')
     cmdutil.exec_cmd_async(['raspistill', '-o', 'myphoto.jpg'], on_photo_saved)
 
+def get_default_camera_params():
+    return {
+        'resolution': (320,240),
+        'framerate': 24,
+        'quality': 0
+    }
+
+def load_camera_params():
+    if os.path.exists('video-stream-options.json'):
+        with open('video-stream-options.json') as f:
+            return json.load(f)
+    else:
+        return get_default_camera_params()
+
+def create_camera(params):
+
+    if len(params) == 0:
+        params = load_camera_params()
+
+    with open('server_params.json','r') as f:
+        server_params = json.load(f)
+        camera = CameraFactory.create_camera(server_params['front_camera'], params)
+        return camera
+
+    return None
+
+def write_camera_params_to_file(camera):
+    with open('video-stream-options.json', 'w') as f:
+        params = {
+            'resolution': camera.get_resolution(),
+            'framerate': camera.get_framerate(),
+            'quality': camera.get_quality()
+        }
+        logging.info(f'Saving camera params to file: {params}')
+        json.dump(params, f)
+
 def gen(camera):
     while True:
         frame = camera.get_frame()
@@ -100,13 +137,84 @@ def gen(camera):
 def stream_mjpg():
     global camera
     if camera is None:
-        with open('server_params.json','r') as f:
-            server_params = json.load(f)
-            camera = CameraFactory.create_camera(server_params['front_camera'])
-            camera.start_capture()
+        camera = create_camera({})
+        camera.start_capture()
     logging.info('streaming')
     return Response(gen(camera),
             mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/get-video-stream-options')
+@login_required
+def video_stream_options():
+    global camera
+    params = {}
+    if camera is None:
+        params = load_camera_params()
+    else:
+        params = {
+            'resolution': camera.get_resolution(),
+            'framerate': camera.get_framerate(),
+            'quality': camera.get_quality()
+        }
+    return params
+
+@app.route('/start-video-stream', methods=['POST'])
+@login_required
+def start_video_stream():
+    global camera
+    if camera is None:
+        params = request.get_json()
+        params['resolution'] = tuple(params['resolution'])
+        logging.info(f'start-video-stream {params}')
+        camera = create_camera(params)
+
+    camera.start_capture()
+
+    write_camera_params_to_file(camera)
+
+    return {}
+
+@app.route('/stop-video-stream', methods=['POST'])
+@login_required
+def stop_video_stream():
+    global camera
+    if camera is None:
+        logging.info('stop_video_stream: no camera')
+        return {}
+    else:
+        camera.stop_capture()
+    return {}
+
+@app.route('/reset-video-stream', methods=['POST'])
+@login_required
+def reset_video_stream():
+    global camera
+    params = request.get_json()
+    params['resolution'] = tuple(params['resolution'])
+    logging.info(f'reset-video-stream {params}')
+    if camera is None:
+        logging.info('reset_video_stream: no camera')
+    else:
+        camera.stop_capture()
+        camera.close()
+
+    camera = create_camera(params)
+    camera.start_capture()
+
+    write_camera_params_to_file(camera)
+
+    return {}
+
+@app.route('/close-video-stream', methods=['POST'])
+@login_required
+def close_video_stream():
+    global camera
+    if camera is None:
+        logging.info('No stream to close')
+        return {}
+    camera.stop_capture()
+    camera.close()
+    return {}
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

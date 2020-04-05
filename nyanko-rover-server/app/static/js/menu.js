@@ -6,6 +6,10 @@ function getControlTest() {
     return document.getElementById('control-test-page');
 }
 
+function getStreamingOptions() {
+    return document.getElementById('streaming-options-page');
+}
+
 function getStatus() {
     return document.getElementById('status-page');
 }
@@ -25,41 +29,61 @@ function getShutdown() {
 function openLiveFeedAndControl() {
     getLiveFeedAndControl().style.display = 'block';
     getControlTest().style.display = 'none';
+    getStreamingOptions().style.display = 'none';
     getStatus().style.display = 'none';
     getDebug().style.display = 'none';
     getShutdown().style.display = 'none';
     getPinMenu().style.display = 'none';
     closeSideNavMenu();
+    sessionStorage.mode = 'live-feed-and-control';
 }
 
 function openControlTest() {
     getLiveFeedAndControl().style.display = 'none';
     getControlTest().style.display = 'block';
+    getStreamingOptions().style.display = 'none';
     getStatus().style.display = 'none';
     getDebug().style.display = 'none';
     getShutdown().style.display = 'none';
     getPinMenu().style.display = 'none';
     closeSideNavMenu();
+    sessionStorage.mode = 'control-test';
+}
+
+function openStreamingOptions() {
+    getLiveFeedAndControl().style.display = 'none';
+    getControlTest().style.display = 'none';
+    getStreamingOptions().style.display = 'block';
+    getStatus().style.display = 'none';
+    getDebug().style.display = 'none';
+    getShutdown().style.display = 'none';
+    getPinMenu().style.display = 'none';
+    closeSideNavMenu();
+    sessionStorage.mode = 'streaming-options';
 }
 
 function openStatus() {
     getLiveFeedAndControl().style.display = 'none';
     getControlTest().style.display = 'none';
+    getStreamingOptions().style.display = 'none';
     getStatus().style.display = 'block';
     getDebug().style.display = 'none';
     getShutdown().style.display = 'none';
     getPinMenu().style.display = 'none';
     closeSideNavMenu();
+    sessionStorage.mode = 'status';
 }
 
 function openDeubg() {
     getLiveFeedAndControl().style.display = 'none';
     getControlTest().style.display = 'none';
+    getStreamingOptions().style.display = 'none';
     getStatus().style.display = 'none';
     getDebug().style.display = 'block';
     getShutdown().style.display = 'none';
     getPinMenu().style.display = 'none';
     closeSideNavMenu();
+    sessionStorage.mode = 'debug';
 }
 
 function updatePin() {
@@ -149,6 +173,33 @@ function onHwStatusFailed() {
 function parseMyXml(xmlStr) {
     return new window.DOMParser().parseFromString(xmlStr, "text/xml");
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+    if(sessionStorage.mode) {
+        console.log(`Current mode: ${sessionStorage.mode}`);
+        switch(sessionStorage.mode) {
+            case 'live-feed-and-control':
+                openLiveFeedAndControl();
+                break;
+            case 'control-test':
+                openControlTest();
+                break;
+            case 'streaming-options':
+                openStreamingOptions();
+                break;
+            case 'status':
+                openStatus();
+                break;
+            case 'debug':
+                openDeubg();
+                break;
+            default:
+                break;
+        }
+    } else {
+        console.log('No mode set');
+    }
+});
 
 //console.log('Setting window.onload function');
 //window.onload = function() {
