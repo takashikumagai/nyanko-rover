@@ -38,7 +38,7 @@ def initialize():
     logging.info('Nyanko Rover is starting...')
 
     # Start the web socket server
-    NyankoRoverWebSocket.create_and_start_web_socket_server(9792)
+    NyankoRoverWebSocket.start_websocket_server(9792)
 
     # Start the motor control service
     motor_control.start_thread()
