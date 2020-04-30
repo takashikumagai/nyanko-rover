@@ -4,6 +4,26 @@ import threading
 import io
 import picamera
 
+def is_camera_available():
+  camera = None
+  try:
+    camera = picamera.PiCamera()
+  except picamera.exc.PiCameraMMALError:
+    logging.info('picamera mmal error')
+    return False
+  except picamera.exc.PiCameraError:
+    logging.info('picamera error')
+    return False
+  except:
+    logging.info('An unknown picamera error')
+    return False
+  finally:
+    if camera is not None:
+      logging.info('Closing the camera')
+      camera.close()
+      return True
+    else:
+      return False
 
 class StreamingOutput(object):
 

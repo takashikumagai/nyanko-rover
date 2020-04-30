@@ -204,7 +204,28 @@ window.addEventListener('DOMContentLoaded', async () => {
   await refreshStreamOptionViews();
 });
 
+// Check the available camera and set the default camera.
+// Note that this code is executed immediately.
+// Ref: https://stackoverflow.com/questions/34589488/es6-immediately-invoked-arrow-function
+(async () => {
+  const response = await fetch('/get-available-camera-types',{
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  });
 
+  response.json().then((data) => {
+    if(data.spherical == 'yes') {
+      current_camera_device = '360';
+    } else if(data.front == 'yes') {
+      current_camera_device = 'front';
+    } else {
+      current_camera_device = 'none';
+    }
+  });
+})()
 
 
 
