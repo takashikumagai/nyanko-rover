@@ -14,6 +14,7 @@ import vcgencmd
 import cmdutil
 import motor_control
 from camera import CameraFactory
+from camera import CameraAvailabilityChecker
 import HWStatusReporter
 from app.login import LoginForm
 
@@ -214,6 +215,26 @@ def close_video_stream():
         return {}
     camera.stop_capture()
     camera.close()
+    return {}
+
+@app.route('/get-available-camera-types')
+@login_required
+def get_available_camera_types():
+    with open('server_params.json','r') as f:
+        server_params = json.load(f)
+        available_camera_types = {}
+
+        # Check if a front-facing camera is available
+        front_camera_available = 'front_camera' in server_params and CameraAvailabilityChecker.is_camera_available(server_params['front_camera'])
+        available_camera_types['front'] = 'yes' if front_camera_available else 'no'
+
+        # Check if a spherical camera is available
+        spherical_camera_available = 'spherical_camera' in server_params and CameraAvailabilityChecker.is_camera_available(server_params['spherical_camera'])
+        available_camera_types['spherical'] = 'yes' if spherical_camera_available else 'no'
+
+        logging.info(f'available camera types: {available_camera_types}')
+        return available_camera_types
+
     return {}
 
 @app.route('/login', methods=['GET', 'POST'])
