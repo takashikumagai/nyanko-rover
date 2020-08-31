@@ -18,11 +18,12 @@ login_manager.login_view = 'login'
 app = Flask(__name__)
 #socketio = SocketIO(app)
 
-db = SQLAlchemy(app)
-
+db = SQLAlchemy()
 app.config['SECRET_KEY'] = os.environ['NYANKO_ROVER_SECRET_KEY']
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nyanko-rover.db'
+# SQLAlchemy gives a warning that says 'SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and ...'
+# if this configuration is missing (setting this to either True or False suppresses the warning).
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 login_manager.init_app(app)
