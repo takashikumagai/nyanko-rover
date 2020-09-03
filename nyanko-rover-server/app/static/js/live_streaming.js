@@ -175,15 +175,7 @@ function closeVideoStream() {
 
 async function refreshStreamOptionViews() {
 
-  const response = await fetch('/get-video-stream-options', {
-    method: 'GET',
-    headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-    }
-    // Request with GET/HEAD method cannot have body
-    //body:
-  });
+  const response = await fetch('/get-video-stream-options');
 
   response.json().then((data) => {
     let w = data.resolution[0];
