@@ -5,7 +5,8 @@
 #   To be more exact, copies the 'nyanko-rover-server' directory to the user's home directory on the RPi (server).
 
 #
-# 1. Load configuration parameters (server IP address, ssh key path, etc.) from nyanko-rover-config.json
+# 1. Load configuration parameters (server IP address, ssh key path, etc.) based on an ssh
+#    host entry in ~/.ssh/config
 #
 
 ssh_remote_host=$1
@@ -18,12 +19,6 @@ fi
 # First user_env_var_on_remote_host will get a value like USER=someuser
 user_env_var_on_remote_host=$(ssh ${ssh_remote_host} printenv | grep USER=)
 user=${user_env_var_on_remote_host:5}
-
-if [ ! -f nyanko-rover-config.json ]; then
-    cp nyanko-rover-config.json.example nyanko-rover-config.json
-    echo "Set the IP address of your RPi, and other properties to nyanko-rover-config.json and run this script again."
-    exit 0
-fi
 
 #
 # 2. If the user specified '--clean' option, delete the current application on the server
