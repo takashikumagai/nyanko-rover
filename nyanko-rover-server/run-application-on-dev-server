@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Commented out; this should be automatically started on system boot
+# as a supervisor program
+#export PIGPIO_PORT=8800
+#sudo pigpiod -p ${port}
+
+# Commented out; pipenv did not work well with picamera
+#pipenv run flask run --host='0.0.0.0'
+
+flask run --host='0.0.0.0'
