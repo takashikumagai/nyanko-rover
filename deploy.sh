@@ -54,9 +54,11 @@ rsync -Parvzz rpi/vcgencmd-rpi.py               ${ssh_remote_host}:${remote_host
 rsync -Parvzz rpi/RPiCamera-rpi.py              ${ssh_remote_host}:${remote_host_dir}/camera/RPiCamera.py
 rsync -Parvzz rpi/server_params-rpi.json        ${ssh_remote_host}:${remote_host_dir}/server_params.json
 # rsync these files the same way but no name changes with them
+rsync -Parvzz rpi/PiGPIO.py                     ${ssh_remote_host}:${remote_host_dir}/
 rsync -Parvzz rpi/motor_controller_TEU_105BK.py ${ssh_remote_host}:${remote_host_dir}/
 rsync -Parvzz rpi/motor_controller_L293D.py     ${ssh_remote_host}:${remote_host_dir}/
 rsync -Parvzz rpi/esc_tester.py                 ${ssh_remote_host}:${remote_host_dir}/
+rsync -Parvzz rpi/Headlamp.py                   ${ssh_remote_host}:${remote_host_dir}/
 
 # Uncomment the RPi.GPIO dependency in Pipfile, i.e. replace '#RPi.GIPO' to 'RPi.GPIO'
 # Note that backslashes are necessary to escape double quotes because sed command is double quoted.

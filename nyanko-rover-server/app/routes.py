@@ -13,12 +13,14 @@ import vcgencmd
 # Proprietary Python modules
 import cmdutil
 import motor_control
+import Headlamp
 from camera import CameraFactory
 from camera import CameraAvailabilityChecker
 import HWStatusReporter
 from app.login import LoginForm
 
 camera = None
+headlamp = Headlamp.Headlamp()
 
 @app.route('/')
 @app.route('/index')
@@ -236,6 +238,27 @@ def get_available_camera_types():
         return available_camera_types
 
     return {}
+
+@app.route('/headlamp', methods=['GET', 'POST'])
+@login_required
+def headlight():
+    #global headlamp
+    if request.method == 'GET':
+        # Return the current brightness
+        logging.info(f'Current headlight brightness: {headlamp.brightness}')
+        return {'brightness': headlamp.brightness}
+    elif request.method == 'POST':
+        # Set the brightness
+        params = request.get_json()
+        logging.info(f'/headlamp POST {params}')
+        if 'brightness' in params:
+            logging.info(f"Changing headlight brightness: {params['brightness']}")
+            headlamp.set_brightness(params['brightness'])
+        else:
+            logging.warning('/headlamp: brightness not specified')
+        return {'brightness': headlamp.brightness}
+    else:
+        return {}
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
