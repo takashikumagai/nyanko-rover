@@ -1,5 +1,6 @@
 *.pyc
 *.log
 server_ip_address.txt
+nyanko-rover-server/Headlamp.py
 nyanko-rover-server/motor_control.py
 nyanko-rover-server/vcgencmd.py
