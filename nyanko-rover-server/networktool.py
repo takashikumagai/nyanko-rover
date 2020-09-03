@@ -2,7 +2,11 @@
 
 import subprocess
 import re
+import shutil
 
+
+def command_exists(cmd):
+  return (shutil.which(cmd) is not None)
 
 def get_subnet():
   ip_and_subnetbits = get_ip_and_num_subnet_bits()
@@ -117,6 +121,9 @@ def ip_from_mac(mac_address):
   print(ip_address)
 
 def get_connected_network_ssid():
+  if not command_exists('nmcli'):
+    return
+
   cp = subprocess.run(['nmcli','-t','-f','active,ssid','dev','wifi'],stdout=subprocess.PIPE)
   lines = cp.stdout.decode('utf-8').split('\n')
   for line in lines:
@@ -127,6 +134,9 @@ def get_connected_network_ssid():
 
 # \return Signal strength in the range [0,100]
 def get_connected_network_signal_strength():
+  if not command_exists('nmcli'):
+    return
+
   cp = subprocess.run(['nmcli','-t','-f','active,signal','dev','wifi'],stdout=subprocess.PIPE)
   lines = cp.stdout.decode('utf-8').split('\n')
   for line in lines:
