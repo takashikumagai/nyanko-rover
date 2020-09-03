@@ -26,6 +26,15 @@ class TestImageCamera:
     time.sleep(0.05)
     return self.frames[ int(time.clock()) % 3 ]
 
+  def get_resolution(self):
+      return (640, 480)
+
+  def get_framerate(self):
+      return 24
+
+  def get_quality(self):
+      return 20
+
 if __name__ == '__main__':
   print('TestImageCamera')
   # Syntax/sanity check

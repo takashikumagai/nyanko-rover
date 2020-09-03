@@ -15,6 +15,7 @@ import cmdutil
 import motor_control
 import Headlamp
 from camera import CameraFactory
+# from event_driven_camera import CameraFactory
 from camera import CameraAvailabilityChecker
 import HWStatusReporter
 from app.login import LoginForm
@@ -114,7 +115,10 @@ def create_camera(params):
 
     with open('server_params.json','r') as f:
         server_params = json.load(f)
-        camera = CameraFactory.create_camera(server_params['front_camera'], params)
+        # Decide if we can go with the specified one or need to fall back to the stub
+        specified = server_params['front_camera']
+        camera_to_create = specified if CameraAvailabilityChecker.is_camera_available(specified) else 'stub'
+        camera = CameraFactory.create_camera(camera_to_create, params)
         return camera
 
     return None
