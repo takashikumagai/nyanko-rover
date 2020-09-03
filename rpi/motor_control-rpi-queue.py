@@ -80,6 +80,8 @@ def init():
     global myqueue
     global motor_controller
 
+    logging.info('Initializing request queue and motor controller')
+
     myqueue = queue.Queue()
 
     #motor_controller = motor_controller_L293D.MotorController_L293D()
@@ -126,7 +128,7 @@ def run():
 
 def start_thread():
     global motor_controller_thread
-    logging.info('Setting up the motor controller...')
+    logging.info('Setting up the motor controller thread...')
     init()
     motor_controller_thread = threading.Thread(target = run)
     motor_controller_thread.start()
@@ -139,5 +141,6 @@ def join():
         logging.info('!motor_controller_thread')
 
 if __name__ == '__main__':
+    logging.info('init and run')
     init()
     run()
