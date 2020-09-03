@@ -93,6 +93,17 @@ body {
     height: 50px;
 }
 
+.headlight_control {
+    text-align: center;
+    padding: 6px;
+}
+
+.headlight_button {
+    margin: auto;
+    width: 160px;
+    height: 24px;
+}
+
 #pin-modal-content {
     text-align: center;
 }

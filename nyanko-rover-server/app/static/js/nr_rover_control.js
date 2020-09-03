@@ -1,6 +1,20 @@
 // Dependencies:
 //   nr_websocket.js
 
+// Ref: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+async function postData(url = '', data = {}) {
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    cache: 'no-cache',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+  return response.json(); // parses JSON response into native JavaScript objects
+}
+
 function moveForward() {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET","forward");
@@ -79,4 +93,14 @@ function setSteering(steering) {
     //console.log("sending steering angle to websocket server");
     myWebSocket.send(msg);
   }
+}
+
+async function headlightOnOff() {
+  fetch('/headlamp')
+  .then(response => response.json())
+  .then(async data => {
+    const brightnessToSet = (data.brightness == 0.0) ? 1.0 : 0.0;
+    console.log(`headlight data.brightness: ${data.brightness}`);
+    await postData('/headlamp', {brightness: brightnessToSet});
+  });
 }
