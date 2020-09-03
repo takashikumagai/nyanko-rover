@@ -2,6 +2,7 @@ import motor_controller
 import pigpio
 import logging
 import time
+from PiGPIO import PiGPIO
 
 def clamp(my_value, min_value, max_value):
     return max(min(my_value, max_value), min_value)
@@ -42,7 +43,8 @@ class MotorController_TEU105BK(motor_controller.MotorController):
         self.pi = None
 
     def init_gpio(self):
-        self.pi = pigpio.pi() # Connect to local pi
+
+        self.pi = PiGPIO.get_pi_instance()
 
         # Servo
         self.pi.set_PWM_range(17, 1000) # Set the range of duty cycle to [0,1000]
