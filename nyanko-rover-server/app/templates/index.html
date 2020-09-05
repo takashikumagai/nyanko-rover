@@ -18,6 +18,9 @@
     <script src="{{ url_for('static', filename='js/nr_websocket.js') }}"></script>
     <script src="{{ url_for('static', filename='js/nr_rover_control.js') }}"></script>
     <script src="{{ url_for('static', filename='js/nr_gamepad.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/adapter.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/signalling.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/webrtc_main.js') }}"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/side_navigation_menu.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/master.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/modal.css') }}">
@@ -157,7 +160,11 @@
       CAM
     </div>
 
-    </div>
+    <!-- Stream video using WebRTC (experiment) -->
+    <button id="start-webrtc-streaming">Start Streaming</button>
+    <button id="stop-webrtc-streaming">Stop Streaming</button>
+    <video id="v" playsinline autoplay></video>
+  </div>
 
     <!--script src='js/on_page_loaded.js'></script-->
 		<script src="{{ url_for('static', filename='js/three.min.js') }}"></script>

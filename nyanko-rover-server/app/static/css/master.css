@@ -191,7 +191,7 @@ input[type=range]::-webkit-slider-thumb/*, .slider::-moz-range-thumb, .slider::-
 
 #document-body {
     /* Would a mpjg resource work like this? */
-    background-image: url("/stream.mjpg");
+    /*background-image: url("/stream.mjpg");*/
     /*background-image: url("../sample_images/360.jpg");*/
 
     /* Full height */
